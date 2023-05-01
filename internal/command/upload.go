@@ -1,0 +1,95 @@
+// Copyright (c) HashiCorp, Inc.
+// SPDX-License-Identifier: MPL-2.0
+
+package command
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"path/filepath"
+	"strings"
+
+	"github.com/hashicorp/go-tfe"
+	"github.com/hashicorp/tfci/internal/cloud"
+)
+
+type UploadConfigurationCommand struct {
+	*Meta
+	Workspace   string
+	Directory   string
+	Speculative bool
+}
+
+func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
+	f := c.flagSet("upload")
+
+	f.StringVar(&c.Workspace, "workspace", "", "The name of the workspace to create the new configuration version in.")
+	f.StringVar(&c.Directory, "directory", "", "Path to the configuration files on disk.")
+	f.BoolVar(&c.Speculative, "speculative", false, "When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.")
+
+	return f
+}
+
+func (c *UploadConfigurationCommand) Run(args []string) int {
+	flags := c.flags()
+	if err := flags.Parse(args); err != nil {
+		c.addOutput("status", string(Error))
+		c.closeOutput()
+		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		return 1
+	}
+
+	log.Printf("[DEBUG] uploading configuration with, workspace: %s, directory: %s, speculative: %t", c.Workspace, c.Directory, c.Speculative)
+
+	dirPath, dirError := filepath.Abs(c.Directory)
+	if dirError != nil {
+		c.addOutput("status", string(Error))
+		c.closeOutput()
+		c.Ui.Error(fmt.Sprintf("error resolving directory path %s", dirError.Error()))
+		return 1
+	}
+
+	log.Printf("[DEBUG] target directory for configuration upload: %s", dirPath)
+
+	configVersion, cvError := c.cloud.UploadConfig(c.Context, cloud.UploadOptions{
+		Workspace:              c.Workspace,
+		Organization:           c.Organization,
+		ConfigurationDirectory: dirPath,
+		Speculative:            c.Speculative,
+	})
+
+	if cvError != nil {
+		status := c.resolveStatus(cvError)
+		c.addOutput("status", string(status))
+		c.addConfigurationDetails(configVersion)
+		c.Ui.Error(fmt.Sprintf("error uploading configuration version to Terraform Cloud: %s", cvError.Error()))
+		c.Ui.Output(c.closeOutput())
+		return 1
+	}
+
+	c.addOutput("status", string(Success))
+	c.addConfigurationDetails(configVersion)
+	c.Ui.Output(c.closeOutput())
+	return 0
+}
+
+func (c *UploadConfigurationCommand) addConfigurationDetails(config *tfe.ConfigurationVersion) {
+	if config != nil {
+		c.addOutput("configuration_version_id", config.ID)
+		c.addOutput("configuration_version_status", string(config.Status))
+	}
+	configPayload, _ := outputJson(config)
+	c.addOutput("payload", configPayload)
+}
+
+func (c *UploadConfigurationCommand) Help() string {
+	helpText := `
+Usage: tfci upload [options]
+	`
+	return strings.TrimSpace(helpText)
+}
+
+func (c *UploadConfigurationCommand) Synopsis() string {
+	return c.Help()
+}
