@@ -25,10 +25,10 @@ type CreateRunCommand struct {
 
 func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run create")
-	f.StringVar(&c.Workspace, "workspace", "", "The Configuration Version ID that was created.")
-	f.StringVar(&c.ConfigurationVersionID, "configuration_version", "", "Specifies the configuration version to use for this run.")
-	f.StringVar(&c.Message, "message", "", "Specifies the message to be associated with this run.")
-	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a speculative, plan-only run that Terraform cannot apply. Often used in conjunction with terraform-version in order to test whether an upgrade would succeed.")
+	f.StringVar(&c.Workspace, "workspace", "", "The name of the Terraform Cloud Workspace.")
+	f.StringVar(&c.ConfigurationVersionID, "configuration_version", "", "The Configuration Version ID to use for this run.")
+	f.StringVar(&c.Message, "message", "", "Specifies the message to be associated with this run. A default message will be set.")
+	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
 
 	return f
 }
@@ -131,7 +131,27 @@ func (c *CreateRunCommand) defaultRunMessage() string {
 
 func (c *CreateRunCommand) Help() string {
 	helpText := `
-Usage: tfci run create [options]
+Usage: tfci [global options] run create [options]
+
+	Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+	-workspace              The name of the Terraform Cloud Workspace.
+
+	-configuration_version  The Configuration Version ID to use for this run.
+
+	-message                Specifies the message to be associated with this run. A default message will be set.
+
+	-plan-only              Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.
 	`
 	return strings.TrimSpace(helpText)
 }

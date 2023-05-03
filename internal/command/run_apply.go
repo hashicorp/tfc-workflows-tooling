@@ -21,7 +21,7 @@ type ApplyRunCommand struct {
 
 func (c *ApplyRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run apply")
-	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to Apply")
+	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to Apply.")
 	f.StringVar(&c.Comment, "comment", "", "An optional comment about the run.")
 
 	return f
@@ -118,7 +118,23 @@ func (c *ApplyRunCommand) readApplyLogs(run *tfe.Run) {
 
 func (c *ApplyRunCommand) Help() string {
 	helpText := `
-Usage: tfci run apply [options]
+Usage: tfci [global options] run apply [options]
+
+	Applies a run that is paused waiting for confirmation after a plan.
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+	-run         Existing Terraform Cloud Run ID to Apply.
+
+	-comment     An optional comment about the run.
 	`
 	return strings.TrimSpace(helpText)
 }
