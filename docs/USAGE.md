@@ -2,7 +2,7 @@
 
 ## Available Commands
 
-* `upload configuration`: Creates and uploads configuration files for a given workspace
+* `upload`: Creates and uploads configuration files for a given workspace
 * `run show`: Returns run details for the provided Terraform Cloud Run ID.
 * `run create`: Performs a new plan run in Terraform Cloud, using a configuration version and the workspace`s current variables.
 * `run apply`: Applies a run that is paused waiting for confirmation after a plan.
