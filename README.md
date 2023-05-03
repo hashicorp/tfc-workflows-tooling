@@ -7,6 +7,10 @@ Terraform Cloud Workflows Tooling is a dockerized go application to automate Ter
 * GitHub Actions
 * GitLab Pipelines
 
+## Usage
+
+See [`docs/USAGE.md`](https://github.com/hashicorp/tfc-workflows-tooling/blob/main/docs/USAGE.md)
+
 ## Related Projects
 
 * [tfc-workflows-github](https://github.com/hashicorp/tfc-workflows-github)
