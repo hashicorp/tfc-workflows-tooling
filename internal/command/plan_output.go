@@ -14,14 +14,12 @@ import (
 type OutputPlanCommand struct {
 	*Meta
 
-	PlanID   string
-	Location string
+	PlanID string
 }
 
 func (c *OutputPlanCommand) flags() *flag.FlagSet {
 	f := c.flagSet("plan output")
 	f.StringVar(&c.PlanID, "plan", "", "The plan ID to retrieve JSON execution plan.")
-	f.StringVar(&c.Location, "location", "", "Location of where to persist the plan execution file.")
 
 	return f
 }
@@ -66,7 +64,21 @@ func (c *OutputPlanCommand) addPlanDetails(plan *tfe.Plan) {
 
 func (c *OutputPlanCommand) Help() string {
 	helpText := `
-Usage: tfci plan output [options]
+Usage: tfci [global options] plan output [options]
+
+	Returns the plan details for the provided Plan ID.
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+	-plan           Returns the plan details for the provided Plan ID.
 	`
 	return strings.TrimSpace(helpText)
 }

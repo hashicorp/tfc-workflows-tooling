@@ -101,7 +101,23 @@ func (c *DiscardRunCommand) addRunDetails(run *tfe.Run) {
 
 func (c *DiscardRunCommand) Help() string {
 	helpText := `
-Usage: tfci run discard [options]
+Usage: tfci [global options] run discard [options]
+
+	Skips any remaining work on runs that are paused waiting for confirmation or priority.
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+	-run         Existing Terraform Cloud Run ID to Discard.
+
+	-comment     An optional comment about the run.
 	`
 	return strings.TrimSpace(helpText)
 }

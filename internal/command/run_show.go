@@ -91,7 +91,21 @@ func (c *ShowRunCommand) addRunDetails(run *tfe.Run) {
 
 func (c *ShowRunCommand) Help() string {
 	helpText := `
-Usage: tfci run show [options]
+Usage: tfci [global options] run show [options]
+
+	Returns run details for the provided Terraform Cloud run ID.
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+	-run            Existing Terraform Cloud Run ID to show.
 	`
 	return strings.TrimSpace(helpText)
 }

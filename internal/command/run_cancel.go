@@ -22,7 +22,7 @@ type CancelRunCommand struct {
 
 func (c *CancelRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run cancel")
-	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to Discard")
+	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to Discard.")
 	f.StringVar(&c.Comment, "comment", "", "An optional comment about the run.")
 	f.BoolVar(&c.ForceCancel, "force-cancel", false, "Ends the run immediately.")
 
@@ -111,7 +111,25 @@ func (c *CancelRunCommand) addRunDetails(run *tfe.Run) {
 
 func (c *CancelRunCommand) Help() string {
 	helpText := `
-Usage: tfci run cancel [options]
+Usage: tfci [global options] run cancel [options]
+
+	Interrupts a run that is currently planning or applying.
+
+Global Options:
+
+	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+
+	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+
+	-organization   Terraform Cloud Organization Name.
+
+Options:
+
+  -run            Existing Terraform Cloud Run ID to Discard.
+
+	-comment        An optional comment about the run.
+
+	-force-cancel   Ends the run immediately.
 	`
 	return strings.TrimSpace(helpText)
 }
