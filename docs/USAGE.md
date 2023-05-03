@@ -4,7 +4,7 @@
 
 * `upload`: Creates and uploads configuration files for a given workspace
 * `run show`: Returns run details for the provided Terraform Cloud Run ID.
-* `run create`: Performs a new plan run in Terraform Cloud, using a configuration version and the workspace`s current variables.
+* `run create`: Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables.
 * `run apply`: Applies a run that is paused waiting for confirmation after a plan.
 * `run discard`: Skips any remaining work on runs that are paused waiting for confirmation or priority.
 * `run cancel`: Interrupts a run that is currently planning or applying.
