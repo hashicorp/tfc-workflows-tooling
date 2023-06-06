@@ -140,5 +140,5 @@ Options:
 }
 
 func (c *ApplyRunCommand) Synopsis() string {
-	return c.Help()
+	return "Applies a run that is paused waiting for confirmation after a plan"
 }

@@ -84,5 +84,5 @@ Options:
 }
 
 func (c *OutputPlanCommand) Synopsis() string {
-	return c.Help()
+	return "Returns the plan details for the provided Plan ID"
 }

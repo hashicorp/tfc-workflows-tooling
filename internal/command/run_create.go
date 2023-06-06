@@ -133,7 +133,7 @@ func (c *CreateRunCommand) Help() string {
 	helpText := `
 Usage: tfci [global options] run create [options]
 
-	Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables
+	Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables.
 
 Global Options:
 
@@ -157,5 +157,5 @@ Options:
 }
 
 func (c *CreateRunCommand) Synopsis() string {
-	return c.Help()
+	return "Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables"
 }

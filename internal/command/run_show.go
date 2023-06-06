@@ -111,5 +111,5 @@ Options:
 }
 
 func (c *ShowRunCommand) Synopsis() string {
-	return c.Help()
+	return "Returns run details for the provided Terraform Cloud run ID"
 }
