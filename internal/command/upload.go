@@ -87,7 +87,7 @@ func (c *UploadConfigurationCommand) Help() string {
 	helpText := `
 Usage: tfci [global options] upload [options]
 
-	Creates and uploads a new configuration version for the provided workspace
+	Creates and uploads a new configuration version for the provided workspace.
 
 Global Options:
 
@@ -109,5 +109,5 @@ Options:
 }
 
 func (c *UploadConfigurationCommand) Synopsis() string {
-	return c.Help()
+	return "Creates and uploads a new configuration version for the provided workspace"
 }

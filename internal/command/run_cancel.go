@@ -135,5 +135,5 @@ Options:
 }
 
 func (c *CancelRunCommand) Synopsis() string {
-	return c.Help()
+	return "Interrupts a run that is currently planning or applying"
 }

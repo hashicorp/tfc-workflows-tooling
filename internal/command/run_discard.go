@@ -123,5 +123,5 @@ Options:
 }
 
 func (c *DiscardRunCommand) Synopsis() string {
-	return c.Help()
+	return "Skips any remaining work on runs that are paused waiting for confirmation or priority"
 }
