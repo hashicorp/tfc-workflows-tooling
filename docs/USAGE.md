@@ -25,7 +25,7 @@ docker pull hashicorp/tfci:v1.0.0
 
 Then run the container.
 
-You are able to pass exported environment variables `TF_HOSTNAME`, `TF_API_TOKEN`, `TF_CLOUD_ORGANIZATION` from the parent process.
+You are able to pass exported environment variables `TF_HOSTNAME` (if using Terraform Enterprise), `TF_API_TOKEN`, `TF_CLOUD_ORGANIZATION` from the parent process.
 
 ```sh
 docker run -it --rm \
@@ -66,7 +66,7 @@ These environment variables are passed to custom Docker GitHub Actions
 
 *.envrc*
 ```sh
-export TF_HOSTNAME="<redacted>"
+export TF_HOSTNAME="my-enterprise-tf-instance.example.com"
 export TF_CLOUD_ORGANIZATION="<redacted>"
 export TF_API_TOKEN="<redacted>"
 # GitHub ENV
