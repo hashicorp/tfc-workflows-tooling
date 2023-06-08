@@ -1,6 +1,12 @@
 # UNRELEASED
 
 ## Enhancements
+
+## Bug Fixes
+
+# v1.0.1
+
+## Enhancements
 * Adds [mitchellh/cli](https://github.com/mitchellh/cli) `Command.Synopsis()` to all commands by @ggambetti [#14](https://github.com/hashicorp/tfc-workflows-tooling/pull/14)
 
 ## Bug Fixes
