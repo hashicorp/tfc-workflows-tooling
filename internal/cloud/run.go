@@ -151,9 +151,8 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 
 		log.Printf("[DEBUG] PlanOnly: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, costEstimateEnabled, policyChecksEnabled)
 
-		desiredStatus := []tfe.RunStatus{tfe.RunPlannedAndFinished}
+		desiredStatus := []tfe.RunStatus{tfe.RunPlannedAndFinished, tfe.RunApplied}
 		if !r.PlanOnly {
-			desiredStatus = []tfe.RunStatus{tfe.RunPlannedAndFinished}
 			if costEstimateEnabled && !policyChecksEnabled {
 				desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
 			} else if policyChecksEnabled {
