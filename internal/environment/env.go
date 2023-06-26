@@ -32,14 +32,24 @@ type CI struct {
 	getenv GetEnv
 }
 
+type OutputI interface {
+	MultiLine() bool
+	Value() string
+}
+
+type OutputMap map[string]OutputI
+
+func NewOutputMap() OutputMap {
+	return OutputMap{}
+}
+
 type Common interface {
 	ID() string
 	SHA() string
 	SHAShort() string
 	Author() string
 	WriteDir() string // where to store tmp files
-	AddOutput(k, v string)
-	GetMessages() map[string]string
+	SetOutput(output OutputMap)
 	CloseOutput() error
 }
 

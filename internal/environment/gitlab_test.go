@@ -17,12 +17,13 @@ func TestCloseOutput(t *testing.T) {
 
 	// Create Gitlab CI context
 	gitlab := newGitLabContext(getenv)
-	gitlab.output = map[string]string{
-		"k1":      "v1",
-		"k2":      "v2",
-		"k3":      "v3",
-		"payload": `{"pk": "pv"}`,
-	}
+
+	gitlab.SetOutput(OutputMap{
+		"k1":      &testOutput{val: "v1"},
+		"k2":      &testOutput{val: "v2"},
+		"k3":      &testOutput{val: "v3"},
+		"payload": &testOutput{val: `{"pk": "pv"}`, multiLine: true},
+	})
 
 	// Call subject
 	err := gitlab.CloseOutput()
@@ -57,7 +58,7 @@ func TestCloseOutput(t *testing.T) {
 	// Assert env vars are same as gitlab.output
 	for k, v := range gitlab.output {
 		// Special key writing for keys that should be written to their own artifacts
-		if _, exists := keyWriters[k]; exists {
+		if v.MultiLine() {
 			f := generateArtifactFileName("json", gitlab.jobName, k)
 			contents, err := os.ReadFile(f)
 			if err != nil {
@@ -77,7 +78,7 @@ func TestCloseOutput(t *testing.T) {
 			t.Fatalf("%s was not stored in outputfile", k)
 		}
 
-		if actual != v {
+		if actual != v.Value() {
 			t.Fatalf("value %s for %s expected, but found %s", v, k, actual)
 		}
 	}

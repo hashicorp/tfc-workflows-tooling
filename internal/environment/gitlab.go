@@ -29,23 +29,21 @@ type GitLabContext struct {
 	// The full commit message.
 	commitMessage string
 	// The map containing output data
-	output map[string]string
+	output OutputMap
 }
 
-var keyWriters = map[string]func(prefix string, data string) error{
-	"payload": func(prefix string, data string) (err error) {
-		file, err := os.Create(generateArtifactFileName("json", prefix, "payload"))
-		if err != nil {
-			return
-		}
-		defer func() {
-			err = file.Close()
-		}()
+func writeArtifact(prefix string, name string, data string) (err error) {
+	file, err := os.Create(generateArtifactFileName("json", prefix, name))
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = file.Close()
+	}()
 
-		_, err = file.WriteString(data)
+	_, err = file.WriteString(data)
 
-		return err
-	},
+	return err
 }
 
 func (gl *GitLabContext) ID() string {
@@ -70,12 +68,8 @@ func (gh *GitLabContext) WriteDir() string {
 	return ""
 }
 
-func (gl *GitLabContext) GetMessages() map[string]string {
-	return gl.output
-}
-
-func (gl *GitLabContext) AddOutput(k, v string) {
-	gl.output[k] = v
+func (gl *GitLabContext) SetOutput(output OutputMap) {
+	gl.output = output
 }
 
 func (gl *GitLabContext) CloseOutput() (err error) {
@@ -92,15 +86,14 @@ func (gl *GitLabContext) CloseOutput() (err error) {
 
 	var lines []string
 	for k, v := range gl.output {
-		if writer, exists := keyWriters[k]; exists {
-			if err = writer(gl.jobName, v); err != nil {
+		if v.MultiLine() {
+			if err = writeArtifact(gl.jobName, k, v.Value()); err != nil {
 				return
 			}
-
 			continue
 		}
 
-		line := fmt.Sprintf("%s=%s", k, v)
+		line := fmt.Sprintf("%s=%s", k, v.Value())
 		lines = append(lines, line)
 	}
 
@@ -126,6 +119,6 @@ func newGitLabContext(getenv GetEnv) *GitLabContext {
 		commitAuthor:        getenv("CI_COMMIT_AUTHOR"),
 		commitMessage:       getenv("CI_COMMIT_MESSAGE"),
 		commitRefName:       getenv("CI_COMMIT_REF_NAME"),
-		output:              make(map[string]string),
+		output:              make(map[string]OutputI),
 	}
 }

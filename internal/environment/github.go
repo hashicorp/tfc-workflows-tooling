@@ -32,7 +32,7 @@ type GitHubContext struct {
 	// path to ::set-output
 	githubOutput string
 	// data sent to GITHUB_OUTPUT
-	output map[string]string
+	output OutputMap
 	//
 	fileDelimeter string
 }
@@ -59,12 +59,8 @@ func (gh *GitHubContext) WriteDir() string {
 	return gh.runnerTemp
 }
 
-func (gh *GitHubContext) AddOutput(k, v string) {
-	gh.output[k] = v
-}
-
-func (gh *GitHubContext) GetMessages() map[string]string {
-	return gh.output
+func (gh *GitHubContext) SetOutput(output OutputMap) {
+	gh.output = output
 }
 
 func (gh *GitHubContext) CloseOutput() (retErr error) {
@@ -77,7 +73,7 @@ func (gh *GitHubContext) CloseOutput() (retErr error) {
 
 	data := []string{}
 	for k, v := range gh.output {
-		data = append(data, multiLineStrVal(gh.fileDelimeter, k, v))
+		data = append(data, multiLineStrVal(gh.fileDelimeter, k, v.Value()))
 	}
 	out := []byte(strings.Join(data, EOF))
 
@@ -93,7 +89,7 @@ func (gh *GitHubContext) CloseOutput() (retErr error) {
 	}
 
 	// reset output
-	gh.output = make(map[string]string)
+	gh.output = make(map[string]OutputI)
 
 	return
 }
@@ -109,7 +105,7 @@ func newGitHubContext(getenv GetEnv) *GitHubContext {
 		refType:      getenv("GITHUB_REF_TYPE"),
 		githubOutput: getenv("GITHUB_OUTPUT"),
 		runnerTemp:   getenv("RUNNER_TEMP"),
-		output:       make(map[string]string),
+		output:       make(map[string]OutputI),
 	}
 	// set random/unique to each github action runner
 	ghCtx.fileDelimeter = fmt.Sprintf("_GH%s%sFD_", ghCtx.runId, ghCtx.runNumber)

@@ -34,8 +34,8 @@ type Meta struct {
 	Env *environment.CI
 	// shared go-tfe client
 	cloud *cloud.Cloud
-	// if github/gitlab context is not detected
-	cliOut map[string]string
+	// messages for stdout, platform output
+	messageOutput map[string]*OutputMessage
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
@@ -58,30 +58,57 @@ func (c *Meta) resolveStatus(err error) Status {
 	return Success
 }
 
-func (c *Meta) addOutput(key string, value string) {
-	// check if context in not github/gitlab
-	if c.Env.Context != nil {
-		c.Env.Context.AddOutput(key, value)
-	} else {
-		// cli use
-		c.cliOut[key] = value
-	}
+func (c *Meta) addOutput(name string, value string) {
+	c.messageOutput[name] = newOutputMessage(name, value)
+}
+
+type outputOpts struct {
+	stdOut    bool
+	multiLine bool
+}
+
+func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpts) {
+	msg := newOutputMessage(name, value)
+	msg.stdOut = opts.stdOut
+	msg.multiLine = opts.multiLine
+	c.messageOutput[name] = msg
+}
+
+type PlatformOutput struct {
+	value     string
+	multiLine bool
+}
+
+func (p *PlatformOutput) Value() string {
+	return p.value
+}
+
+func (p *PlatformOutput) MultiLine() bool {
+	return p.multiLine
 }
 
 func (c *Meta) closeOutput() string {
-	// check if context in not github/gitlab
-	var m map[string]string
-	if c.Env.Context != nil {
-		m = c.Env.Context.GetMessages()
-		c.Env.Context.CloseOutput()
-	} else {
-		m = c.cliOut
+	stdOutput := make(map[string]interface{})
+	platOutput := environment.NewOutputMap()
+
+	for _, m := range c.messageOutput {
+		if m.stdOut {
+			stdOutput[m.name] = m.value
+		}
+		if m.IncludeWithPlatform() {
+			platOutput[m.name] = &PlatformOutput{
+				value:     m.String(),
+				multiLine: m.multiLine,
+			}
+		}
 	}
 
-	// remove from stdout
-	delete(m, "payload")
+	if c.Env.Context != nil {
+		c.Env.Context.SetOutput(platOutput)
+		c.Env.Context.CloseOutput()
+	}
 
-	outJson, err := json.MarshalIndent(m, "", "  ")
+	outJson, err := json.MarshalIndent(stdOutput, "", "  ")
 	if err != nil {
 		return string(err.Error())
 	}
@@ -90,7 +117,7 @@ func (c *Meta) closeOutput() string {
 
 func NewMeta(c *cloud.Cloud) *Meta {
 	return &Meta{
-		cloud:  c,
-		cliOut: make(map[string]string),
+		cloud:         c,
+		messageOutput: make(map[string]*OutputMessage),
 	}
 }
