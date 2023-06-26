@@ -4,6 +4,12 @@
 
 ## Bug Fixes
 
+# v1.0.2
+
+## Bug Fixes
+
+* Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.28.0` to [avoid sending credentials during ConfigurationVersion upload](https://github.com/hashicorp/go-tfe/pull/717), as they are not necessary.
+
 # v1.0.1
 
 ## Enhancements
