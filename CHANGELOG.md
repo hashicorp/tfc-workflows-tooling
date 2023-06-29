@@ -3,6 +3,7 @@
 ## Enhancements
 
 ## Bug Fixes
+* Fixes issue with runs incorrectly marked as `Error` when status ends in `policy_soft_failed` by @mjyocca [#23](https://github.com/hashicorp/tfc-workflows-tooling/pull/23)
 
 # v1.0.2
 
