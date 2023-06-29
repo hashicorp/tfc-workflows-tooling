@@ -53,40 +53,35 @@ func (o *OutputMessage) String() (sValue string) {
 			sValue = string(b)
 			return
 		}
-		// check struct tags for `json` or `jsonapi`
-		json, jsonAPI := structHasJsonTags(refType)
-		// if json, normal marshal
-		if json {
-			sValue, _ = marshalJson(o.value)
-			return
-		}
-		// use jsonapi marshal
-		if jsonAPI {
+
+		switch resolveMarshaler(refType) {
+		case JSONAPI:
 			sValue, _ = marshalJsonAPI(o.value)
-			return
+		default:
+			sValue, _ = marshalJson(o.value)
 		}
 	}
 	return
 }
 
-func structHasJsonTags(t reflect.Type) (json bool, jsonAPI bool) {
-	jsonLabel, apiLabel := "json", "jsonapi"
+type Marshaler string
+
+const JSONAPI Marshaler = "jsonapi"
+const JSON Marshaler = "json"
+
+func resolveMarshaler(t reflect.Type) Marshaler {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		// Get the field tag value
-		jsonTag := field.Tag.Get(jsonLabel)
-		apiTag := field.Tag.Get(apiLabel)
-		// as soon as we determine, return
-		if jsonTag != "" {
-			json = true
-			return
-		}
+		jsonTag := field.Tag.Get(string(JSON))
+		apiTag := field.Tag.Get(string(JSONAPI))
 		if apiTag != "" {
-			jsonAPI = true
-			return
+			return JSONAPI
+		}
+		if jsonTag != "" {
+			return JSON
 		}
 	}
-	return json, jsonAPI
+	return ""
 }
 
 func marshalJson(data interface{}) (string, error) {
