@@ -78,7 +78,6 @@ func structHasJsonTags(t reflect.Type) (json bool, jsonAPI bool) {
 		apiTag := field.Tag.Get(apiLabel)
 		// as soon as we determine, return
 		if jsonTag != "" {
-			fmt.Println("found json tag")
 			json = true
 			return
 		}
