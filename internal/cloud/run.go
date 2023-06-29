@@ -42,7 +42,6 @@ var NoopStatus = []tfe.RunStatus{
 	tfe.RunErrored,
 	tfe.RunCanceled,
 	tfe.RunDiscarded,
-	tfe.RunPolicySoftFailed,
 	ForceCancel,
 	PrePlanAwaitingDecision,
 	PostPlanAwaitingDecision,
@@ -151,7 +150,12 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 
 		log.Printf("[DEBUG] PlanOnly: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, costEstimateEnabled, policyChecksEnabled)
 
-		desiredStatus := []tfe.RunStatus{tfe.RunPlannedAndFinished, tfe.RunApplied}
+		desiredStatus := []tfe.RunStatus{
+			tfe.RunPolicySoftFailed,
+			tfe.RunPlannedAndFinished,
+			tfe.RunApplied,
+		}
+
 		if !r.PlanOnly {
 			if costEstimateEnabled && !policyChecksEnabled {
 				desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
