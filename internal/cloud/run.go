@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/hashicorp/go-tfe"
 	"github.com/sethvargo/go-retry"
@@ -348,15 +349,35 @@ func (s *runService) GetPolicyCheckLogs(ctx context.Context, run *tfe.Run) error
 		return nil
 	}
 
+	policyChecks, err := s.tfe.PolicyChecks.List(ctx, run.ID, &tfe.PolicyCheckListOptions{})
+	if err != nil {
+		return err
+	}
+
+	logStart := true
 	fmt.Println()
-	fmt.Println("-------------- Sentinel Policy Checks --------------")
-	for _, pcheck := range run.PolicyChecks {
+	for _, pcheck := range policyChecks.Items {
+		ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
+		defer cancel()
+
+		// if no work was done, skip
+		if pcheck.Status == tfe.PolicyPending || pcheck.Status == tfe.PolicyUnreachable {
+			continue
+		}
+
 		var err error
 		var logReader io.Reader
-		logReader, err = s.tfe.PolicyChecks.Logs(ctx, pcheck.ID)
+		logReader, err = s.tfe.PolicyChecks.Logs(ctxTimeout, pcheck.ID)
 		if err != nil {
 			return err
 		}
+
+		// only log for first sentinel policy
+		if logStart {
+			fmt.Println("-------------- Sentinel Policy Checks --------------")
+			logStart = false
+		}
+
 		err = outputRunLogLines(logReader)
 		if err != nil {
 			return err
@@ -409,7 +430,16 @@ func (s *runService) LogTaskStage(ctx context.Context, run *tfe.Run, stage tfe.S
 }
 
 func (s *runService) LogCostEstimation(ctx context.Context, run *tfe.Run) {
-	if run.CostEstimate != nil && run.CostEstimate.Status != tfe.CostEstimateStatus("unreachable") {
+	checkStatus := func(s tfe.CostEstimateStatus) bool {
+		for _, status := range []tfe.CostEstimateStatus{tfe.CostEstimateStatus("unreachable"), tfe.CostEstimatePending} {
+			if s == status {
+				return false
+			}
+		}
+		return true
+	}
+
+	if run.CostEstimate != nil && checkStatus(run.CostEstimate.Status) {
 		fmt.Printf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID)
 		fmt.Printf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage)
 		fmt.Printf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost)
