@@ -87,13 +87,13 @@ func (gl *GitLabContext) CloseOutput() (err error) {
 	var lines []string
 	for k, v := range gl.output {
 		if v.MultiLine() {
-			if err = writeArtifact(gl.jobName, k, v.Value()); err != nil {
+			if err = writeArtifact(gl.jobName, k, v.String()); err != nil {
 				return
 			}
 			continue
 		}
 
-		line := fmt.Sprintf("%s=%s", k, v.Value())
+		line := fmt.Sprintf("%s=%s", k, v.String())
 		lines = append(lines, line)
 	}
 

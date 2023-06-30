@@ -74,19 +74,6 @@ func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpt
 	c.messageOutput[name] = msg
 }
 
-type PlatformOutput struct {
-	value     string
-	multiLine bool
-}
-
-func (p *PlatformOutput) Value() string {
-	return p.value
-}
-
-func (p *PlatformOutput) MultiLine() bool {
-	return p.multiLine
-}
-
 func (c *Meta) closeOutput() string {
 	stdOutput := make(map[string]interface{})
 	platOutput := environment.NewOutputMap()
@@ -96,10 +83,7 @@ func (c *Meta) closeOutput() string {
 			stdOutput[m.name] = m.value
 		}
 		if m.IncludeWithPlatform() {
-			platOutput[m.name] = &PlatformOutput{
-				value:     m.String(),
-				multiLine: m.multiLine,
-			}
+			platOutput[m.name] = m
 		}
 	}
 

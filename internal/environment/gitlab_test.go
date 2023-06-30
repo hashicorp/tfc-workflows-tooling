@@ -78,7 +78,7 @@ func TestCloseOutput(t *testing.T) {
 			t.Fatalf("%s was not stored in outputfile", k)
 		}
 
-		if actual != v.Value() {
+		if actual != v.String() {
 			t.Fatalf("value %s for %s expected, but found %s", v, k, actual)
 		}
 	}

@@ -73,7 +73,7 @@ func (gh *GitHubContext) CloseOutput() (retErr error) {
 
 	data := []string{}
 	for k, v := range gh.output {
-		data = append(data, multiLineStrVal(gh.fileDelimeter, k, v.Value()))
+		data = append(data, multiLineStrVal(gh.fileDelimeter, k, v.String()))
 	}
 	out := []byte(strings.Join(data, EOF))
 

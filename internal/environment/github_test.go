@@ -61,7 +61,7 @@ func (o *testOutput) MultiLine() bool {
 	return o.multiLine
 }
 
-func (o *testOutput) Value() string {
+func (o *testOutput) String() string {
 	return o.val
 }
 

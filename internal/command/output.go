@@ -25,16 +25,6 @@ type OutputMessage struct {
 	multiLine bool
 }
 
-func newOutputMessage(name string, value interface{}) *OutputMessage {
-	return &OutputMessage{
-		name:        name,
-		value:       value,
-		stdOut:      true,
-		platformOut: true,
-		multiLine:   false,
-	}
-}
-
 func (o *OutputMessage) IncludeWithPlatform() bool {
 	return o.platformOut
 }
@@ -62,6 +52,20 @@ func (o *OutputMessage) String() (sValue string) {
 		}
 	}
 	return
+}
+
+func (o *OutputMessage) MultiLine() bool {
+	return o.multiLine
+}
+
+func newOutputMessage(name string, value interface{}) *OutputMessage {
+	return &OutputMessage{
+		name:        name,
+		value:       value,
+		stdOut:      true,
+		platformOut: true,
+		multiLine:   false,
+	}
 }
 
 type Marshaler string

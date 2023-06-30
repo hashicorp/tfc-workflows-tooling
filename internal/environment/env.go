@@ -34,7 +34,7 @@ type CI struct {
 
 type OutputI interface {
 	MultiLine() bool
-	Value() string
+	String() string
 }
 
 type OutputMap map[string]OutputI
