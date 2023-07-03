@@ -438,21 +438,14 @@ func (s *runService) LogTaskStage(ctx context.Context, run *tfe.Run, stage tfe.S
 }
 
 func (s *runService) LogCostEstimation(ctx context.Context, run *tfe.Run) {
-	checkStatus := func(s tfe.CostEstimateStatus) bool {
-		for _, status := range []tfe.CostEstimateStatus{tfe.CostEstimateStatus("unreachable"), tfe.CostEstimatePending} {
-			if s == status {
-				return false
-			}
-		}
-		return true
+	if run.CostEstimate == nil || run.CostEstimate.Status == tfe.CostEstimateStatus("unreachable") || run.CostEstimate.Status == tfe.CostEstimatePending {
+		return
 	}
 
-	if run.CostEstimate != nil && checkStatus(run.CostEstimate.Status) {
-		fmt.Printf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID)
-		fmt.Printf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage)
-		fmt.Printf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost)
-		fmt.Println()
-	}
+	fmt.Printf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID)
+	fmt.Printf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage)
+	fmt.Printf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost)
+	fmt.Println()
 }
 
 func outputRunLogLines(logs io.Reader) error {
