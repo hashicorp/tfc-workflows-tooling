@@ -1,6 +1,7 @@
 # UNRELEASED
 
 ## Enhancements
+* Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.29.0`.
 
 ## Bug Fixes
 
