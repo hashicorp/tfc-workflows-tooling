@@ -311,9 +311,12 @@ func (service *runService) CancelRun(ctx context.Context, options CancelRunOptio
 }
 
 func (service *runService) GetPlanLogs(ctx context.Context, planID string) error {
+	ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+
 	var err error
 	var logReader io.Reader
-	logReader, err = service.tfe.Plans.Logs(ctx, planID)
+	logReader, err = service.tfe.Plans.Logs(ctxTimeout, planID)
 	if err != nil {
 		return err
 	}
@@ -328,9 +331,12 @@ func (service *runService) GetPlanLogs(ctx context.Context, planID string) error
 }
 
 func (service *runService) GetApplyLogs(ctx context.Context, applyID string) error {
+	ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+
 	var err error
 	var logReader io.Reader
-	logReader, err = service.tfe.Applies.Logs(ctx, applyID)
+	logReader, err = service.tfe.Applies.Logs(ctxTimeout, applyID)
 	if err != nil {
 		return err
 	}
