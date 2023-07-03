@@ -16,6 +16,8 @@ import (
 	"github.com/sethvargo/go-retry"
 )
 
+const LogTimeout = time.Second * 10
+
 var (
 	ForceCancel              = tfe.RunStatus("force_canceled")
 	PrePlanAwaitingDecision  = tfe.RunStatus("pre_apply_awaiting_decision")
@@ -311,7 +313,7 @@ func (service *runService) CancelRun(ctx context.Context, options CancelRunOptio
 }
 
 func (service *runService) GetPlanLogs(ctx context.Context, planID string) error {
-	ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
+	ctxTimeout, cancel := context.WithTimeout(ctx, LogTimeout)
 	defer cancel()
 
 	var err error
@@ -331,7 +333,7 @@ func (service *runService) GetPlanLogs(ctx context.Context, planID string) error
 }
 
 func (service *runService) GetApplyLogs(ctx context.Context, applyID string) error {
-	ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*10)
+	ctxTimeout, cancel := context.WithTimeout(ctx, LogTimeout)
 	defer cancel()
 
 	var err error
