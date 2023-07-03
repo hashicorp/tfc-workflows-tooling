@@ -5,6 +5,7 @@
 
 ## Bug Fixes
 * Fixes issue with runs incorrectly marked as `Error` when status ends in `policy_soft_failed` by @mjyocca [#23](https://github.com/hashicorp/tfc-workflows-tooling/pull/23)
+* Fixes bug with reading logs from unreached sentinel policies blocking the main go-routine by @mjyocca [#24](https://github.com/hashicorp/tfc-workflows-tooling/pull/24)
 
 # v1.0.2
 
