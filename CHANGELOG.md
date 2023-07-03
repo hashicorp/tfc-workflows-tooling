@@ -4,6 +4,7 @@
 * Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.29.0`.
 
 ## Bug Fixes
+* Fixes issue with runs incorrectly marked as `Error` when status ends in `policy_soft_failed` by @mjyocca [#23](https://github.com/hashicorp/tfc-workflows-tooling/pull/23)
 
 # v1.0.2
 
