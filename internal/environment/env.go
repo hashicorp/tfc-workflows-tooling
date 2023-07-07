@@ -33,14 +33,14 @@ type CI struct {
 }
 
 // interface to allow dependency injection that satisfies contract
-type OutputI interface {
+type OutputWriter interface {
 	// determines complex value and each platform can determine how to handle
 	MultiLine() bool
 	// resolves string value for the interface{}
 	String() string
 }
 
-type OutputMap map[string]OutputI
+type OutputMap map[string]OutputWriter
 
 // return type map to padd to SetOutput(OutputMap)
 func NewOutputMap() OutputMap {

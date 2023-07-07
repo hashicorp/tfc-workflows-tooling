@@ -119,6 +119,6 @@ func newGitLabContext(getenv GetEnv) *GitLabContext {
 		commitAuthor:        getenv("CI_COMMIT_AUTHOR"),
 		commitMessage:       getenv("CI_COMMIT_MESSAGE"),
 		commitRefName:       getenv("CI_COMMIT_REF_NAME"),
-		output:              make(map[string]OutputI),
+		output:              make(map[string]OutputWriter),
 	}
 }

@@ -89,7 +89,7 @@ func (gh *GitHubContext) CloseOutput() (retErr error) {
 	}
 
 	// reset output
-	gh.output = make(map[string]OutputI)
+	gh.output = make(map[string]OutputWriter)
 
 	return
 }
@@ -105,7 +105,7 @@ func newGitHubContext(getenv GetEnv) *GitHubContext {
 		refType:      getenv("GITHUB_REF_TYPE"),
 		githubOutput: getenv("GITHUB_OUTPUT"),
 		runnerTemp:   getenv("RUNNER_TEMP"),
-		output:       make(map[string]OutputI),
+		output:       make(map[string]OutputWriter),
 	}
 	// set random/unique to each github action runner
 	ghCtx.fileDelimeter = fmt.Sprintf("_GH%s%sFD_", ghCtx.runId, ghCtx.runNumber)
