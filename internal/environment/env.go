@@ -32,13 +32,17 @@ type CI struct {
 	getenv GetEnv
 }
 
+// interface to allow dependency injection that satisfies contract
 type OutputI interface {
+	// determines complex value and each platform can determine how to handle
 	MultiLine() bool
+	// resolves string value for the interface{}
 	String() string
 }
 
 type OutputMap map[string]OutputI
 
+// return type map to padd to SetOutput(OutputMap)
 func NewOutputMap() OutputMap {
 	return OutputMap{}
 }
