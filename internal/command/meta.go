@@ -35,7 +35,7 @@ type Meta struct {
 	// shared go-tfe client
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
-	messageOutput map[string]*OutputMessage
+	messages map[string]*OutputMessage
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
@@ -60,22 +60,12 @@ func (c *Meta) resolveStatus(err error) Status {
 
 // adds new output value to map as &OutputMessage{}
 func (c *Meta) addOutput(name string, value string) {
-	c.messageOutput[name] = newOutputMessage(name, value)
-}
-
-type outputOpts struct {
-	// indicates if value should be displayed to stdout
-	stdOut bool
-	// indicates if value contains a multiline value as some platforms: gitlab do not support multiline values in `.env`
-	multiLine bool
+	c.messages[name] = newOutputMessage(name, value, defaultOutputOpts)
 }
 
 // adds new output value with options &outputOpts{}
 func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpts) {
-	msg := newOutputMessage(name, value)
-	msg.stdOut = opts.stdOut
-	msg.multiLine = opts.multiLine
-	c.messageOutput[name] = msg
+	c.messages[name] = newOutputMessage(name, value, opts)
 }
 
 // returns json result string, containing all outputs
@@ -86,7 +76,7 @@ func (c *Meta) closeOutput() string {
 	// map[string]OutputI interface
 	platOutput := environment.NewOutputMap()
 
-	for _, m := range c.messageOutput {
+	for _, m := range c.messages {
 		// some values we may want to exclude for stdout
 		if m.stdOut {
 			stdOutput[m.name] = m.value
@@ -113,7 +103,7 @@ func (c *Meta) closeOutput() string {
 
 func NewMeta(c *cloud.Cloud) *Meta {
 	return &Meta{
-		cloud:         c,
-		messageOutput: make(map[string]*OutputMessage),
+		cloud:    c,
+		messages: make(map[string]*OutputMessage),
 	}
 }

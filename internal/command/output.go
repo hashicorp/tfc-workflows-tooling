@@ -61,13 +61,28 @@ func (o *OutputMessage) MultiLine() bool {
 	return o.multiLine
 }
 
-func newOutputMessage(name string, value interface{}) *OutputMessage {
+var defaultOutputOpts = &outputOpts{
+	stdOut:      true,
+	platformOut: true,
+	multiLine:   false,
+}
+
+type outputOpts struct {
+	// option that indicates if value should be displayed to stdout
+	stdOut bool
+	// option to include value to platform output when detected
+	platformOut bool
+	// option to indicate if value contains a multiline value as some platforms: gitlab do not support multiline values in `.env`
+	multiLine bool
+}
+
+func newOutputMessage(name string, value interface{}, opts *outputOpts) *OutputMessage {
 	return &OutputMessage{
 		name:        name,
 		value:       value,
-		stdOut:      true,
-		platformOut: true,
-		multiLine:   false,
+		stdOut:      opts.stdOut,
+		platformOut: opts.platformOut,
+		multiLine:   opts.multiLine,
 	}
 }
 
