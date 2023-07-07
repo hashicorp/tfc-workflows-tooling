@@ -15,7 +15,7 @@ import (
 type OutputMessage struct {
 	// unique name
 	name string
-	//
+	// raw value to return to stdout, platform
 	value interface{}
 	// determines if message should be included in stdout. default: true
 	stdOut bool
@@ -37,17 +37,20 @@ func (o *OutputMessage) String() (sValue string) {
 		reflectVal := reflect.ValueOf(o.value)
 		reflectInd := reflect.Indirect(reflectVal)
 		refType := reflectInd.Type()
-		// if type is not a struct, return
+		// if type is not a struct, return as marshaled string
 		if refType.Kind() != reflect.Struct {
 			b, _ := json.Marshal(o.value)
 			sValue = string(b)
 			return
 		}
 
+		// depending on presence of jsonapi struct tags, determine marshaller
 		switch resolveMarshaler(refType) {
 		case JSONAPI:
+			// we detected jsonapi, use jsonapi.MarshalPayload. eg. *tfe.Run struct
 			sValue, _ = marshalJsonAPI(o.value)
 		default:
+			// everything else use standard json.Marshal
 			sValue, _ = marshalJson(o.value)
 		}
 	}
@@ -73,6 +76,7 @@ type Marshaler string
 const JSONAPI Marshaler = "jsonapi"
 const JSON Marshaler = "json"
 
+// use reflection type to check for struct field tags: `json` | `jsonapi`
 func resolveMarshaler(t reflect.Type) Marshaler {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
@@ -96,6 +100,7 @@ func marshalJson(data interface{}) (string, error) {
 	return string(bytes), nil
 }
 
+// marshal structs decorated with `jsonapi` fields
 func marshalJsonAPI(data interface{}) (string, error) {
 	buffer := new(bytes.Buffer)
 

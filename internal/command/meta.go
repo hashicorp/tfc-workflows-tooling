@@ -58,15 +58,19 @@ func (c *Meta) resolveStatus(err error) Status {
 	return Success
 }
 
+// adds new output value to map as &OutputMessage{}
 func (c *Meta) addOutput(name string, value string) {
 	c.messageOutput[name] = newOutputMessage(name, value)
 }
 
 type outputOpts struct {
-	stdOut    bool
+	// indicates if value should be displayed to stdout
+	stdOut bool
+	// indicates if value contains a multiline value as some platforms: gitlab do not support multiline values in `.env`
 	multiLine bool
 }
 
+// adds new output value with options &outputOpts{}
 func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpts) {
 	msg := newOutputMessage(name, value)
 	msg.stdOut = opts.stdOut
@@ -74,20 +78,28 @@ func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpt
 	c.messageOutput[name] = msg
 }
 
+// returns json result string, containing all outputs
+// if running in ci, will send outputs to platform
 func (c *Meta) closeOutput() string {
+	// using map[string]any to pretty marshal collection
 	stdOutput := make(map[string]interface{})
+	// map[string]OutputI interface
 	platOutput := environment.NewOutputMap()
 
 	for _, m := range c.messageOutput {
+		// some values we may want to exclude for stdout
 		if m.stdOut {
 			stdOutput[m.name] = m.value
 		}
+		// some outputs we may want to exclude for platform
 		if m.IncludeWithPlatform() {
 			platOutput[m.name] = m
 		}
 	}
 
+	// check to see if we're running in CI environment
 	if c.Env.Context != nil {
+		// pass output data and close signifying we're done
 		c.Env.Context.SetOutput(platOutput)
 		c.Env.Context.CloseOutput()
 	}
