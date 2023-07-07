@@ -35,7 +35,7 @@ type Meta struct {
 	// shared go-tfe client
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
-	messages map[string]*OutputMessage
+	messages map[string]*outputMessage
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
@@ -104,6 +104,6 @@ func (c *Meta) closeOutput() string {
 func NewMeta(c *cloud.Cloud) *Meta {
 	return &Meta{
 		cloud:    c,
-		messages: make(map[string]*OutputMessage),
+		messages: make(map[string]*outputMessage),
 	}
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/jsonapi"
 )
 
-type OutputMessage struct {
+type outputMessage struct {
 	// unique name
 	name string
 	// raw value to return to stdout, platform
@@ -25,11 +25,11 @@ type OutputMessage struct {
 	multiLine bool
 }
 
-func (o *OutputMessage) IncludeWithPlatform() bool {
+func (o *outputMessage) IncludeWithPlatform() bool {
 	return o.platformOut
 }
 
-func (o *OutputMessage) String() (sValue string) {
+func (o *outputMessage) String() (sValue string) {
 	switch o.value.(type) {
 	case string:
 		sValue = fmt.Sprintf("%s", o.value)
@@ -57,7 +57,7 @@ func (o *OutputMessage) String() (sValue string) {
 	return
 }
 
-func (o *OutputMessage) MultiLine() bool {
+func (o *outputMessage) MultiLine() bool {
 	return o.multiLine
 }
 
@@ -76,8 +76,8 @@ type outputOpts struct {
 	multiLine bool
 }
 
-func newOutputMessage(name string, value interface{}, opts *outputOpts) *OutputMessage {
-	return &OutputMessage{
+func newOutputMessage(name string, value interface{}, opts *outputOpts) *outputMessage {
+	return &outputMessage{
 		name:        name,
 		value:       value,
 		stdOut:      opts.stdOut,
