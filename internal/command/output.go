@@ -30,6 +30,7 @@ func (o *outputMessage) IncludeWithPlatform() bool {
 
 func (o *outputMessage) String() string {
 	var sValue string
+	var sErr error
 	switch o.value.(type) {
 	case string:
 		return o.value.(string)
@@ -43,17 +44,23 @@ func (o *outputMessage) String() string {
 			return string(b)
 		}
 
-		// github.com/hashicorp/go-tfe structs use `jsonapi` tags and require marshalling
+		// github.com/hashicorp/go-tfe structs use `jsonapi` tag annotation and requires marshalling
 		// with the github.com/hashicorp/jsonapi package to serialize to the correct format.
 		// depending on the structs tags, we will use `jsonapi` or standard `json` marhshaler.
 		switch resolveMarshaler(refType) {
+		// we detected jsonapi, use jsonapi.MarshalPayload. eg. *tfe.Run struct
 		case JSONAPI:
-			// we detected jsonapi, use jsonapi.MarshalPayload. eg. *tfe.Run struct
-			sValue, _ = marshalJsonAPI(o.value)
+			sValue, sErr = marshalJsonAPI(o.value)
+			if sErr != nil {
+				panic(sErr)
+			}
 			return sValue
+		// everything else use standard json.Marshal
 		default:
-			// everything else use standard json.Marshal
-			sValue, _ = marshalJson(o.value)
+			sValue, sErr = marshalJson(o.value)
+			if sErr != nil {
+				panic(sErr)
+			}
 			return sValue
 		}
 	}
