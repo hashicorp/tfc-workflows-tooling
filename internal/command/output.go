@@ -6,7 +6,6 @@ package command
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"reflect"
 
 	"github.com/hashicorp/jsonapi"
@@ -29,10 +28,11 @@ func (o *outputMessage) IncludeWithPlatform() bool {
 	return o.platformOut
 }
 
-func (o *outputMessage) String() (sValue string) {
+func (o *outputMessage) String() string {
+	var sValue string
 	switch o.value.(type) {
 	case string:
-		sValue = fmt.Sprintf("%s", o.value)
+		return o.value.(string)
 	default:
 		reflectVal := reflect.ValueOf(o.value)
 		reflectInd := reflect.Indirect(reflectVal)
@@ -40,21 +40,23 @@ func (o *outputMessage) String() (sValue string) {
 		// if type is not a struct, return as marshaled string
 		if refType.Kind() != reflect.Struct {
 			b, _ := json.Marshal(o.value)
-			sValue = string(b)
-			return
+			return string(b)
 		}
 
-		// depending on presence of jsonapi struct tags, determine marshaller
+		// github.com/hashicorp/go-tfe structs use `jsonapi` tags and require marshalling
+		// with the github.com/hashicorp/jsonapi package to serialize to the correct format.
+		// depending on the structs tags, we will use `jsonapi` or standard `json` marhshaler.
 		switch resolveMarshaler(refType) {
 		case JSONAPI:
 			// we detected jsonapi, use jsonapi.MarshalPayload. eg. *tfe.Run struct
 			sValue, _ = marshalJsonAPI(o.value)
+			return sValue
 		default:
 			// everything else use standard json.Marshal
 			sValue, _ = marshalJson(o.value)
+			return sValue
 		}
 	}
-	return
 }
 
 func (o *outputMessage) MultiLine() bool {
