@@ -11,6 +11,7 @@ type Cloud struct {
 	ConfigVersionService
 	RunService
 	PlanService
+	WorkspaceService
 }
 
 func NewCloud(c *tfe.Client) *Cloud {
@@ -18,5 +19,6 @@ func NewCloud(c *tfe.Client) *Cloud {
 		ConfigVersionService: NewConfigVersionService(c),
 		RunService:           NewRunService(c),
 		PlanService:          NewPlanService(c),
+		WorkspaceService:     NewWorkspaceService(c),
 	}
 }
