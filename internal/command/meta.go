@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
+	"log"
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
@@ -87,6 +88,9 @@ func (c *Meta) closeOutput() string {
 			// if it has errored, don't include value
 			if err != nil {
 				platOutput[m.name] = environment.NewOutput(val, m.multiLine)
+			} else {
+				// add error to logger
+				log.Printf("[ERROR] problem writing output: '%s', with: %s", m.name, err.Error())
 			}
 		}
 	}
