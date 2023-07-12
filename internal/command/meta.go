@@ -80,15 +80,17 @@ func (c *Meta) closeOutput() string {
 	for _, m := range c.messages {
 		// some values we may want to exclude for stdout
 		if m.stdOut {
+			// add raw interface{} value to stdout
 			stdOutput[m.name] = m.value
 		}
 		// some outputs we may want to exclude for platform
 		if m.IncludeWithPlatform() {
+			// convert to string
 			val, err := m.Value()
 			// if error, add to logger
 			if err != nil {
 				log.Printf("[ERROR] problem writing output: '%s', with: %s", m.name, err.Error())
-				// don't include value to platform is issue serializing
+				// don't include value if issue serializing value
 				continue
 			}
 			platOutput[m.name] = environment.NewOutput(val, m.multiLine)
