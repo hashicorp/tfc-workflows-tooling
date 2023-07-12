@@ -85,13 +85,13 @@ func (c *Meta) closeOutput() string {
 		// some outputs we may want to exclude for platform
 		if m.IncludeWithPlatform() {
 			val, err := m.Value()
-			// if it has errored, don't include value
+			// if error, add to logger
 			if err != nil {
-				platOutput[m.name] = environment.NewOutput(val, m.multiLine)
-			} else {
-				// add error to logger
 				log.Printf("[ERROR] problem writing output: '%s', with: %s", m.name, err.Error())
+				// don't include value to platform is issue serializing
+				continue
 			}
+			platOutput[m.name] = environment.NewOutput(val, m.multiLine)
 		}
 	}
 
