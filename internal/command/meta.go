@@ -83,7 +83,11 @@ func (c *Meta) closeOutput() string {
 		}
 		// some outputs we may want to exclude for platform
 		if m.IncludeWithPlatform() {
-			platOutput[m.name] = m
+			val, err := m.Value()
+			// if it has errored, don't include value
+			if err != nil {
+				platOutput[m.name] = environment.NewOutput(val, m.multiLine)
+			}
 		}
 	}
 

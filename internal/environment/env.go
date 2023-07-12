@@ -47,6 +47,26 @@ func NewOutputMap() OutputMap {
 	return OutputMap{}
 }
 
+type Output struct {
+	value     string
+	multiLine bool
+}
+
+func (o *Output) String() string {
+	return o.value
+}
+
+func (o *Output) MultiLine() bool {
+	return o.multiLine
+}
+
+func NewOutput(val string, multiLine bool) *Output {
+	return &Output{
+		value:     val,
+		multiLine: multiLine,
+	}
+}
+
 type Common interface {
 	ID() string
 	SHA() string
