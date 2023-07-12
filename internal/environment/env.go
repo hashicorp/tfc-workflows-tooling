@@ -42,11 +42,12 @@ type OutputWriter interface {
 
 type OutputMap map[string]OutputWriter
 
-// return type map to padd to SetOutput(OutputMap)
+// return type map to pass to SetOutput(OutputMap)
 func NewOutputMap() OutputMap {
 	return OutputMap{}
 }
 
+// exported struct that satisfies OutputWriter interface
 type Output struct {
 	value     string
 	multiLine bool
