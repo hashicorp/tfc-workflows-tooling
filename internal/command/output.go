@@ -6,6 +6,7 @@ package command
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/hashicorp/jsonapi"
@@ -52,9 +53,11 @@ func (o *outputMessage) Value() (string, error) {
 		// we detected jsonapi, use jsonapi.MarshalPayload. eg. *tfe.Run struct
 		case JSONAPI:
 			return marshalJsonAPI(o.value)
-		// everything else use standard json.Marshal
-		default:
+		// detected json tag annotations
+		case JSON:
 			return marshalJson(o.value)
+		default:
+			return "", fmt.Errorf("no marshaller found for %v", refType)
 		}
 	}
 }
