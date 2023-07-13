@@ -52,6 +52,19 @@ func createOutFile(t *testing.T, path string) {
 	})
 }
 
+type testOutput struct {
+	val       string
+	multiLine bool
+}
+
+func (o *testOutput) MultiLine() bool {
+	return o.multiLine
+}
+
+func (o *testOutput) String() string {
+	return o.val
+}
+
 func Test_GitHubOutput(t *testing.T) {
 	env := getEnvMock(t)
 	path, _ := filepath.Abs(env["GITHUB_OUTPUT"])
@@ -63,8 +76,10 @@ func Test_GitHubOutput(t *testing.T) {
 	}
 	github := newGitHubContext(getenv)
 
-	github.AddOutput("k", "v")
-	github.AddOutput("v", "m")
+	github.SetOutput(OutputMap{
+		"k": &testOutput{val: "v"},
+		"v": &testOutput{val: "k"},
+	})
 
 	err := github.CloseOutput()
 	if err != nil {

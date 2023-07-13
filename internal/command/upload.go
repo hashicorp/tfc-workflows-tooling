@@ -79,8 +79,11 @@ func (c *UploadConfigurationCommand) addConfigurationDetails(config *tfe.Configu
 		c.addOutput("configuration_version_id", config.ID)
 		c.addOutput("configuration_version_status", string(config.Status))
 	}
-	configPayload, _ := outputJson(config)
-	c.addOutput("payload", configPayload)
+
+	c.addOutputWithOpts("payload", config, &outputOpts{
+		stdOut:    false,
+		multiLine: true,
+	})
 }
 
 func (c *UploadConfigurationCommand) Help() string {

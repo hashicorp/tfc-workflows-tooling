@@ -101,8 +101,11 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 			c.Ui.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
 		}
 	}
-	runJson, _ := outputJson(run)
-	c.addOutput("payload", runJson)
+
+	c.addOutputWithOpts("payload", run, &outputOpts{
+		stdOut:    false,
+		multiLine: true,
+	})
 }
 
 func (c *CreateRunCommand) readPlanLogs(run *tfe.Run) {

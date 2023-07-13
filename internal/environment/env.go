@@ -32,14 +32,49 @@ type CI struct {
 	getenv GetEnv
 }
 
+// interface to allow dependency injection that satisfies contract
+type OutputWriter interface {
+	// determines complex value and each platform can determine how to handle
+	MultiLine() bool
+	// resolves string value for the interface{}
+	String() string
+}
+
+type OutputMap map[string]OutputWriter
+
+// return type map to pass to SetOutput(OutputMap)
+func NewOutputMap() OutputMap {
+	return OutputMap{}
+}
+
+// exported struct that satisfies OutputWriter interface
+type Output struct {
+	value     string
+	multiLine bool
+}
+
+func (o *Output) String() string {
+	return o.value
+}
+
+func (o *Output) MultiLine() bool {
+	return o.multiLine
+}
+
+func NewOutput(val string, multiLine bool) *Output {
+	return &Output{
+		value:     val,
+		multiLine: multiLine,
+	}
+}
+
 type Common interface {
 	ID() string
 	SHA() string
 	SHAShort() string
 	Author() string
 	WriteDir() string // where to store tmp files
-	AddOutput(k, v string)
-	GetMessages() map[string]string
+	SetOutput(output OutputMap)
 	CloseOutput() error
 }
 

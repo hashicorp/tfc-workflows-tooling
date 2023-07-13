@@ -12,6 +12,10 @@ log/
 tmp
 .envrc
 
+.env
+
+.vscode/*
+
 ## Terraform
 # Local .terraform directories
 **/.terraform/*
