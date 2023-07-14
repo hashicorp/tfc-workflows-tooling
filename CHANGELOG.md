@@ -3,6 +3,7 @@
 ## Enhancements
 * Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.29.0`.
 * Internal refactor for output interface by @mjyocca [#22](https://github.com/hashicorp/tfc-workflows-tooling/pull/22)
+* Adds additional error messages when encountering issues with TFC/E requests by @mjyocca [#28](https://github.com/hashicorp/tfc-workflows-tooling/pull/28)
 
 ## Bug Fixes
 * Fixes issue with runs incorrectly marked as `Error` when status ends in `policy_soft_failed` by @mjyocca [#23](https://github.com/hashicorp/tfc-workflows-tooling/pull/23)
