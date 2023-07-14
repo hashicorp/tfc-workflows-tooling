@@ -5,7 +5,7 @@ package cloud
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/hashicorp/go-tfe"
@@ -20,32 +20,33 @@ type workspaceService struct {
 	tfe *tfe.Client
 }
 
+// wait 5 minutes for current state version finish processing
+// primarily to prevent edge case of reading workspace outputs immediately after an apply run
+const StateVersionOutputMaxDuration = 5 * time.Minute
+
 func wServiceBackoff() retry.Backoff {
 	backoff := retry.NewFibonacci(2 * time.Second)
 	backoff = retry.WithCappedDuration(7*time.Second, backoff)
-	backoff = retry.WithMaxDuration(5*time.Minute, backoff)
+	backoff = retry.WithMaxDuration(StateVersionOutputMaxDuration, backoff)
 	return backoff
 }
 
 func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string, wName string) (*tfe.StateVersionOutputsList, error) {
 	w, wErr := s.tfe.Workspaces.Read(ctx, orgName, wName)
 	if wErr != nil {
+		log.Printf("[ERROR] error reading workspace: '%s' in organization: '%s', with: %s", wName, orgName, wErr)
 		return nil, wErr
-	}
-
-	if w.ID == "" {
-		return nil, fmt.Errorf("unable to find workspace by provided name: '%s'", wName)
 	}
 
 	currentSV, csvErr := s.tfe.StateVersions.ReadCurrent(ctx, w.ID)
 	if csvErr != nil {
+		log.Printf("[ERROR] error reading current state version: %s", csvErr)
 		return nil, csvErr
 	}
 
-	// if current state version hasn;t been processed yet,
-	// retry/wait until processed or timeout
+	// if current state version has not been processed yet,
+	// poll/wait for current state version to finish processing
 	if !currentSV.ResourcesProcessed {
-		//implement retry
 		retryErr := retry.Do(ctx, wServiceBackoff(), func(ctx context.Context) error {
 			currentSV, csvErr = s.tfe.StateVersions.ReadCurrent(ctx, w.ID)
 			if currentSV.ResourcesProcessed {
@@ -58,12 +59,14 @@ func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string,
 		})
 
 		if retryErr != nil {
+			log.Printf("[ERROR] error waiting for current state version to finish processing")
 			return nil, retryErr
 		}
 	}
 
 	svoList, svoErr := s.tfe.StateVersionOutputs.ReadCurrent(ctx, w.ID)
 	if svoErr != nil {
+		log.Printf("[ERROR] error reading state version output list: %s", svoErr)
 		return nil, svoErr
 	}
 
