@@ -58,8 +58,10 @@ func (c *OutputPlanCommand) addPlanDetails(plan *tfe.Plan) {
 	c.addOutput("change", fmt.Sprint(plan.ResourceChanges))
 	c.addOutput("destroy", fmt.Sprint(plan.ResourceDestructions))
 
-	planJson, _ := outputJson(plan)
-	c.addOutput("payload", planJson)
+	c.addOutputWithOpts("payload", plan, &outputOpts{
+		stdOut:    false,
+		multiLine: true,
+	})
 }
 
 func (c *OutputPlanCommand) Help() string {

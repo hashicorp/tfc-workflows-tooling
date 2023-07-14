@@ -85,8 +85,10 @@ func (c *ShowRunCommand) addRunDetails(run *tfe.Run) {
 		}
 	}
 
-	payloadJson, _ := outputJson(run)
-	c.addOutput("payload", payloadJson)
+	c.addOutputWithOpts("payload", run, &outputOpts{
+		stdOut:    false,
+		multiLine: true,
+	})
 }
 
 func (c *ShowRunCommand) Help() string {

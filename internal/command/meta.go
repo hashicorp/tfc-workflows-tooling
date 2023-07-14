@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"flag"
 	"io/ioutil"
+	"log"
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
@@ -34,8 +35,8 @@ type Meta struct {
 	Env *environment.CI
 	// shared go-tfe client
 	cloud *cloud.Cloud
-	// if github/gitlab context is not detected
-	cliOut map[string]string
+	// messages for stdout, platform output
+	messages map[string]*outputMessage
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
@@ -58,30 +59,52 @@ func (c *Meta) resolveStatus(err error) Status {
 	return Success
 }
 
-func (c *Meta) addOutput(key string, value string) {
-	// check if context in not github/gitlab
-	if c.Env.Context != nil {
-		c.Env.Context.AddOutput(key, value)
-	} else {
-		// cli use
-		c.cliOut[key] = value
-	}
+// adds new output value to map as &OutputMessage{}
+func (c *Meta) addOutput(name string, value string) {
+	c.messages[name] = newOutputMessage(name, value, defaultOutputOpts)
 }
 
+// adds new output value with options &outputOpts{}
+func (c *Meta) addOutputWithOpts(name string, value interface{}, opts *outputOpts) {
+	c.messages[name] = newOutputMessage(name, value, opts)
+}
+
+// returns json result string, containing all outputs
+// if running in ci, will send outputs to platform
 func (c *Meta) closeOutput() string {
-	// check if context in not github/gitlab
-	var m map[string]string
-	if c.Env.Context != nil {
-		m = c.Env.Context.GetMessages()
-		c.Env.Context.CloseOutput()
-	} else {
-		m = c.cliOut
+	// using map[string]any to pretty marshal collection
+	stdOutput := make(map[string]interface{})
+	// map[string]OutputI interface
+	platOutput := environment.NewOutputMap()
+
+	for _, m := range c.messages {
+		// some values we may want to exclude for stdout
+		if m.stdOut {
+			// add raw interface{} value to stdout
+			stdOutput[m.name] = m.value
+		}
+		// some outputs we may want to exclude for platform
+		if m.IncludeWithPlatform() {
+			// convert to string
+			val, err := m.Value()
+			// if error, add to logger
+			if err != nil {
+				log.Printf("[ERROR] problem writing output: '%s', with: %s", m.name, err.Error())
+				// don't include value if issue serializing value
+				continue
+			}
+			platOutput[m.name] = environment.NewOutput(val, m.multiLine)
+		}
 	}
 
-	// remove from stdout
-	delete(m, "payload")
+	// check to see if we're running in CI environment
+	if c.Env.Context != nil {
+		// pass output data and close signifying we're done
+		c.Env.Context.SetOutput(platOutput)
+		c.Env.Context.CloseOutput()
+	}
 
-	outJson, err := json.MarshalIndent(m, "", "  ")
+	outJson, err := json.MarshalIndent(stdOutput, "", "  ")
 	if err != nil {
 		return string(err.Error())
 	}
@@ -90,7 +113,7 @@ func (c *Meta) closeOutput() string {
 
 func NewMeta(c *cloud.Cloud) *Meta {
 	return &Meta{
-		cloud:  c,
-		cliOut: make(map[string]string),
+		cloud:    c,
+		messages: make(map[string]*outputMessage),
 	}
 }
