@@ -34,7 +34,7 @@ func wServiceBackoff() retry.Backoff {
 func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string, wName string) (*tfe.StateVersionOutputsList, error) {
 	w, wErr := s.tfe.Workspaces.Read(ctx, orgName, wName)
 	if wErr != nil {
-		log.Printf("[ERROR] error reading workspace: '%s' in organization: '%s', with: %s", wName, orgName, wErr)
+		log.Printf("[ERROR] error reading workspace: %q organization: %q, error: %s", wName, orgName, wErr)
 		return nil, wErr
 	}
 
@@ -59,7 +59,7 @@ func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string,
 		})
 
 		if retryErr != nil {
-			log.Printf("[ERROR] error waiting for current state version to finish processing")
+			log.Printf("[ERROR] error waiting for current state version to finish processing: %s", retryErr)
 			return nil, retryErr
 		}
 	}
