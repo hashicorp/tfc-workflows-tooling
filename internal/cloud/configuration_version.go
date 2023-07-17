@@ -31,7 +31,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	workspace, wErr := service.Workspaces.Read(ctx, options.Organization, options.Workspace)
 
 	if wErr != nil {
-		log.Printf("[ERROR] error reading workspace: '%s', with organization: '%s'", options.Workspace, options.Organization)
+		log.Printf("[ERROR] error reading workspace: %q organization: %q error: %s", options.Workspace, options.Organization, wErr)
 		return nil, wErr
 	}
 
@@ -41,7 +41,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	})
 
 	if cvErr != nil {
-		log.Printf("[ERROR] error creating configuration version: %s", cvErr.Error())
+		log.Printf("[ERROR] error creating configuration version: %s", cvErr)
 		return configVersion, cvErr
 	}
 
@@ -50,7 +50,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	err := service.ConfigurationVersions.Upload(ctx, configVersion.UploadURL, options.ConfigurationDirectory)
 
 	if err != nil {
-		log.Printf("[ERROR] error uploading configuration version: %s", err.Error())
+		log.Printf("[ERROR] error uploading configuration version: %s", err)
 		return configVersion, err
 	}
 
@@ -71,7 +71,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	})
 
 	if retryErr != nil {
-		log.Printf("[ERROR] error waiting for upload completion: %s", retryErr.Error())
+		log.Printf("[ERROR] error waiting for upload completion: %s", retryErr)
 		return configVersion, retryErr
 	}
 
