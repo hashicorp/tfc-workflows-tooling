@@ -1,7 +1,13 @@
 # UNRELEASED
 
 ## Enhancements
-* Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.29.0`.
+
+## Bug Fixes
+
+# v1.0.3
+
+## Enhancements
+* Upgrades [go-tfe](https://github.com/hashicorp/go-tfe) to `v1.30.0`.
 * Internal refactor for output interface by @mjyocca [#22](https://github.com/hashicorp/tfc-workflows-tooling/pull/22)
 * Adds additional error messages when encountering issues with TFC/E requests by @mjyocca [#28](https://github.com/hashicorp/tfc-workflows-tooling/pull/28)
 
