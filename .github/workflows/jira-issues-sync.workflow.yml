@@ -43,7 +43,7 @@ jobs:
 
       # Creates a new issue, only if this is a new PR or GH Issue, and only if an existing issue is not in the branch name
       - name: Create Issue
-        if: github.event.action == 'opened' && steps.find-issue-in-branch.outputs.issue == null
+        if: github.event.action == 'opened'
         uses: atlassian/gajira-create@59e177c4f6451399df5b4911c2211104f171e669 # v3.0.1
         with:
           project: "${{ env.PROJECT }}"
@@ -52,6 +52,7 @@ jobs:
           description: "${{ github.event.issue.body || github.event.pull_request.body }}\n\n_Created in GitHub by ${{ github.actor }}._"
           fields: ${{ steps.build-extra-fields.outputs.extra }}
 
+      # else look for existing issue
       - name: Search
         if: github.event.action != 'opened'
         id: search
