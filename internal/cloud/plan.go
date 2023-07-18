@@ -5,6 +5,7 @@ package cloud
 
 import (
 	"context"
+	"log"
 
 	"github.com/hashicorp/go-tfe"
 )
@@ -20,6 +21,7 @@ type planService struct {
 func (service *planService) GetPlan(ctx context.Context, planID string) (*tfe.Plan, error) {
 	data, err := service.tfe.Plans.Read(ctx, planID)
 	if err != nil {
+		log.Printf("[ERROR] error reading plan: '%s', with: '%s'", planID, err.Error())
 		return nil, err
 	}
 	return data, nil

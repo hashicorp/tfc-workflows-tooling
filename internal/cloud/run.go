@@ -88,6 +88,7 @@ func (service *runService) GetRun(ctx context.Context, options GetRunOptions) (*
 		Include: []tfe.RunIncludeOpt{"cost_estimate", "plan"},
 	})
 	if err != nil {
+		log.Printf("[ERROR] error reading run: %q error: %s", options.RunID, err)
 		return nil, err
 	}
 	return run, nil
@@ -99,6 +100,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	// read workspace
 	w, err := service.tfe.Workspaces.Read(ctx, options.Organization, options.Workspace)
 	if err != nil {
+		log.Printf("[ERROR] error reading workspace: %q organization: %q error: %s", options.Workspace, options.Organization, err)
 		return nil, err
 	}
 
@@ -109,6 +111,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	if options.ConfigurationVersionID != "" {
 		cv, err = service.tfe.ConfigurationVersions.Read(ctx, options.ConfigurationVersionID)
 		if err != nil {
+			log.Printf("[ERROR] error reading configuration version: %q error: %s", options.ConfigurationVersionID, err)
 			return nil, err
 		}
 		createOpts.ConfigurationVersion = cv
@@ -129,6 +132,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	run, err := service.tfe.Runs.Create(ctx, createOpts)
 
 	if err != nil {
+		log.Printf("[ERROR] error creating run in Terraform Cloud: %s", err)
 		return nil, err
 	}
 
@@ -192,6 +196,7 @@ func (service *runService) ApplyRun(ctx context.Context, options ApplyRunOptions
 	if err := service.tfe.Runs.Apply(ctx, options.RunID, tfe.RunApplyOptions{
 		Comment: tfe.String(options.Comment),
 	}); err != nil {
+		log.Printf("[ERROR] error applying run: %q error: %s", options.RunID, err)
 		return applyRun, err
 	}
 
@@ -231,6 +236,7 @@ func (service *runService) DiscardRun(ctx context.Context, options DiscardRunOpt
 	if err := service.tfe.Runs.Discard(ctx, options.RunID, tfe.RunDiscardOptions{
 		Comment: &options.Comment,
 	}); err != nil {
+		log.Printf("[ERROR] error discarding run: %q error: %s", options.RunID, err.Error())
 		return discardRun, err
 	}
 
@@ -278,6 +284,7 @@ func (service *runService) CancelRun(ctx context.Context, options CancelRunOptio
 	}
 
 	if err != nil {
+		log.Printf("[ERROR] error canceling run: %q, with: %s", options.RunID, err.Error())
 		return cancelRun, err
 	}
 
