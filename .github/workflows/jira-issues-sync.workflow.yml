@@ -15,9 +15,6 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    env:
-      PROJECT: ${{ inputs.project }}
-      ISSUE_EXTRA_FIELDS: ${{ inputs.issue-extra-fields }}
     steps:
       - name: Login
         uses: atlassian/gajira-login@45fd029b9f1d6d8926c6f04175aa80c0e42c9026 # v3.0.1
@@ -38,7 +35,7 @@ jobs:
               "labels": ${{ toJSON(github.event.issue.labels.*.name) }}
             }
         run: |
-          echo "extra=$(echo '${{ env.EXTRA_FIELDS }}' '${{ env.ISSUE_EXTRA_FIELDS }}' | jq -rcs '.[0] * .[1]')" >> $GITHUB_OUTPUT
+          echo "extra=$(echo '${{ env.EXTRA_FIELDS }}' '${{ inputs.issue-extra-fields }}' | jq -rcs '.[0] * .[1]')" >> $GITHUB_OUTPUT
 
 
       # Creates a new issue, only if this is a new PR or GH Issue, and only if an existing issue is not in the branch name
@@ -46,7 +43,7 @@ jobs:
         if: github.event.action == 'opened'
         uses: atlassian/gajira-create@59e177c4f6451399df5b4911c2211104f171e669 # v3.0.1
         with:
-          project: "${{ env.PROJECT }}"
+          project: "${{ inputs.project }}"
           issuetype: "GH Issue"
           summary: "${{ github.event.repository.name }} [GH Issue #${{ github.event.issue.number || github.event.pull_request.number }}]: ${{ github.event.issue.title || github.event.pull_request.title }}"
           description: "${{ github.event.issue.body || github.event.pull_request.body }}\n\n_Created in GitHub by ${{ github.actor }}._"
