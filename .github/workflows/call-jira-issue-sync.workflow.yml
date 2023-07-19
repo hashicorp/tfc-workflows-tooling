@@ -15,4 +15,4 @@ jobs:
       project: TF
       issue-extra-fields: |
         { "customfield_10091": ["TF-NEXUS"] }
-        { "customfield_10008": ["TF-7050"] }
+        { "customfield_10008": "TF-7050" }
