@@ -1,0 +1,17 @@
+---
+name: Jira Issue Sync
+
+on:
+  issues:
+    types: [opened, closed, deleted, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  call-jira-sync-workflow:
+    uses: ./.github/workflows/jira-issues-sync.workflow.yml
+    with:
+      project: TF
+      issue-extra-fields: |
+        { "customfield_10091": ["TF-NEXUS"] }
+        { "customfield_10008": ["TF-7050"] }
