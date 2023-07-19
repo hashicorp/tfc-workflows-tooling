@@ -31,7 +31,6 @@ jobs:
           EXTRA_FIELDS: |
             { "customfield_10089": "${{ github.event.issue.html_url || github.event.pull_request.html_url }}",
               "customfield_10371": { "value": "GitHub" },
-              "components": [{ "name": "${{ github.event.repository.name }}" }],
               "labels": ${{ toJSON(github.event.issue.labels.*.name) }}
             }
         run: |
