@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-jira-sync-workflow:
-    uses: ./.github/workflows/jira-issues-sync.workflow.yml
+    uses: ./.github/workflows/jira-issue-sync.workflow.yml
     secrets: inherit
     with:
       project: TF
