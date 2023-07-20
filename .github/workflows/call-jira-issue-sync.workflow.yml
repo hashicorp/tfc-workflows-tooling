@@ -9,10 +9,9 @@ on:
 
 jobs:
   call-jira-sync-workflow:
-    uses: ./.github/workflows/jira-issues-sync.workflow.yml
+    uses: ./.github/workflows/jira-issue-sync.workflow.yml
     secrets: inherit
     with:
       project: TF
       issue-extra-fields: |
-        { "customfield_10091": ["TF-NEXUS"] }
-        { "customfield_10008": "TF-7050" }
+        { "customfield_10091": ["TF-NEXUS"], "customfield_10008": "TF-7050" }
