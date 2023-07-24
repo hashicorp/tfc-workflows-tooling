@@ -31,11 +31,13 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 	t.Helper()
 
 	if opts.items == nil || len(opts.items) < 1 {
-		opts.items = []*tfe.StateVersionOutput{{
-			Name:      "test",
-			Value:     "",
-			Sensitive: false,
-		}}
+		opts.items = []*tfe.StateVersionOutput{
+			{
+				Name:      "test",
+				Value:     "",
+				Sensitive: false,
+			},
+		}
 	}
 
 	cloudMockService := &cloud.Cloud{
@@ -62,20 +64,22 @@ func TestWorkspaceOutputListCommand_Output(t *testing.T) {
 		{
 			name: "standard-values",
 			args: []string{"--workspace=my-workspace"},
-			svoList: []*tfe.StateVersionOutput{{
-				Name:  "image_id",
-				Value: "ami-123456",
-			},
+			svoList: []*tfe.StateVersionOutput{
+				{
+					Name:  "image_id",
+					Value: "ami-123456",
+				},
 			},
 		},
 		{
 			name: "sensitive-values",
 			args: []string{"--workspace=my-workspace"},
-			svoList: []*tfe.StateVersionOutput{{
-				Name:      "db_creds",
-				Value:     "null",
-				Sensitive: true,
-			},
+			svoList: []*tfe.StateVersionOutput{
+				{
+					Name:      "db_creds",
+					Value:     "null",
+					Sensitive: true,
+				},
 			},
 		},
 	}

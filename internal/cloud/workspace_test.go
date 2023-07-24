@@ -36,10 +36,11 @@ func TestWorkspaceService_ReadStateOutputs(t *testing.T) {
 				ResourcesProcessed: true,
 			},
 			tfeStateVersionOutputs: &tfe.StateVersionOutputsList{
-				Items: []*tfe.StateVersionOutput{{
-					Name:  "image_id",
-					Value: "ami-12345",
-				},
+				Items: []*tfe.StateVersionOutput{
+					{
+						Name:  "image_id",
+						Value: "ami-12345",
+					},
 				},
 			},
 		},
@@ -104,10 +105,11 @@ func TestWorkspaceService_ReadStateOutputs_Retry(t *testing.T) {
 			ResourcesProcessed: false,
 		}
 		tfeStateVersionOutputs := &tfe.StateVersionOutputsList{
-			Items: []*tfe.StateVersionOutput{{
-				Name:  "image_id",
-				Value: "ami-12345",
-			},
+			Items: []*tfe.StateVersionOutput{
+				{
+					Name:  "image_id",
+					Value: "ami-12345",
+				},
 			},
 		}
 
