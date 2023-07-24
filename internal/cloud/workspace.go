@@ -49,11 +49,13 @@ func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string,
 	if !currentSV.ResourcesProcessed {
 		retryErr := retry.Do(ctx, wServiceBackoff(), func(ctx context.Context) error {
 			currentSV, csvErr = s.tfe.StateVersions.ReadCurrent(ctx, w.ID)
-			if currentSV.ResourcesProcessed {
-				return nil
-			}
+			// return non-retryable error
 			if csvErr != nil {
 				return csvErr
+			}
+			// keep checking until resources have been processed
+			if currentSV.ResourcesProcessed {
+				return nil
 			}
 			return retryableTimeoutError("workspace output list")
 		})
