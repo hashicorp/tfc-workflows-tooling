@@ -78,6 +78,9 @@ func newCliRunner() (*cli.CLI, error) {
 		"plan output": func() (cli.Command, error) {
 			return &command.OutputPlanCommand{Meta: meta}, nil
 		},
+		"workspace output list": func() (cli.Command, error) {
+			return &command.WorkspaceOutputCommand{Meta: meta}, nil
+		},
 	}
 
 	return cliRunner, nil
