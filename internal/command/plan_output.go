@@ -59,8 +59,9 @@ func (c *OutputPlanCommand) addPlanDetails(plan *tfe.Plan) {
 	c.addOutput("destroy", fmt.Sprint(plan.ResourceDestructions))
 
 	c.addOutputWithOpts("payload", plan, &outputOpts{
-		stdOut:    false,
-		multiLine: true,
+		stdOut:      false,
+		multiLine:   true,
+		platformOut: true,
 	})
 }
 

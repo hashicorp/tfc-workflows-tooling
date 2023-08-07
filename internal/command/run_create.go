@@ -103,8 +103,9 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 	}
 
 	c.addOutputWithOpts("payload", run, &outputOpts{
-		stdOut:    false,
-		multiLine: true,
+		stdOut:      false,
+		multiLine:   true,
+		platformOut: true,
 	})
 }
 

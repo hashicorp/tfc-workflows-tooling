@@ -81,8 +81,9 @@ func (c *UploadConfigurationCommand) addConfigurationDetails(config *tfe.Configu
 	}
 
 	c.addOutputWithOpts("payload", config, &outputOpts{
-		stdOut:    false,
-		multiLine: true,
+		stdOut:      false,
+		multiLine:   true,
+		platformOut: true,
 	})
 }
 
