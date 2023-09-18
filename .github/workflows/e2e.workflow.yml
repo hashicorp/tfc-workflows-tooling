@@ -16,7 +16,7 @@ jobs:
       run:
         working-directory: .github/terraform/tfe
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
 
       - uses: hashicorp/setup-terraform@v1
         id: terraform-setup
@@ -41,7 +41,7 @@ jobs:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       TF_LOG: DEBUG
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
 
       - uses: ./.github/actions/test-upload-configuration
         id: upload
@@ -79,7 +79,7 @@ jobs:
       TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
     needs: speculative-run
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
 
       - uses: hashicorp/setup-terraform@v1
         id: terraform-setup

@@ -59,14 +59,14 @@ jobs:
 
       - name: Sync comment
         if: github.event.action == 'created' && steps.search.outputs.issue
-        uses: atlassian/gajira-comment@v3 # TSCCR: no entry for repository "atlassian/gajira-comment"
+        uses: atlassian/gajira-comment@164913891625fe50e9836957902e0bf7d9ef99a8 # v3.0.1
         with:
           issue: ${{ steps.search.outputs.issue }}
           comment: "${{ github.actor }} ${{ github.event.review.state || 'commented' }}:\n\n${{ github.event.comment.body || github.event.review.body }}\n\n${{ github.event.comment.html_url || github.event.review.html_url }}"
 
       - name: Close issue
         if: ( github.event.action == 'closed' || github.event.action == 'deleted' ) && steps.search.outputs.issue
-        uses: brandonc/gajira-transition@master # TSCCR: no entry for repository "brandonc/gajira-transition"
+        uses: brandonc/gajira-transition@cf0b950ee4576da50c03c8151b26a13563139a04 # master
         with:
           issue: ${{ steps.search.outputs.issue }}
           transition: "Closed"
