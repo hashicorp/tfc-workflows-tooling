@@ -138,6 +138,11 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 
 	fmt.Printf("Created Run ID: %s\n", run.ID)
 
+	costEstimateEnabled, policyChecksEnabled := hasCostEstimate(run), hasPolicyChecks(run)
+	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
+
+	log.Printf("[DEBUG] PlanOnly: %t, AutoApply: %t, CostEstimation: %t, PolicyChecks: %t", run.PlanOnly, run.AutoApply, costEstimateEnabled, policyChecksEnabled)
+
 	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
 		log.Printf("[DEBUG] Monitoring run status...")
 		r, err := service.GetRun(ctx, GetRunOptions{
@@ -151,27 +156,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 			return err
 		}
 
-		costEstimateEnabled, policyChecksEnabled := hasCostEstimate(r), hasPolicyChecks(r)
-
 		fmt.Printf("Run Status: '%s'\n", run.Status)
-
-		log.Printf("[DEBUG] PlanOnly: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, costEstimateEnabled, policyChecksEnabled)
-
-		desiredStatus := []tfe.RunStatus{
-			tfe.RunPolicySoftFailed,
-			tfe.RunPlannedAndFinished,
-			tfe.RunApplied,
-		}
-
-		if !r.PlanOnly {
-			if costEstimateEnabled && !policyChecksEnabled {
-				desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
-			} else if policyChecksEnabled {
-				desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
-			} else {
-				desiredStatus = append(desiredStatus, tfe.RunPlanned)
-			}
-		}
 
 		done, err := isRunComplete(r, desiredStatus, NoopStatus)
 		if err != nil {
@@ -510,6 +495,45 @@ type CancelRunOptions struct {
 	RunID       string
 	Comment     string
 	ForceCancel bool
+}
+
+func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEnabled bool) []tfe.RunStatus {
+	// shared desired status across all runs
+	desiredStatus := []tfe.RunStatus{
+		tfe.RunPolicySoftFailed,
+		tfe.RunPlannedAndFinished,
+		tfe.RunApplied,
+	}
+
+	// when plan_only run
+	if run.PlanOnly {
+		// plan only runs will result in default desired slice
+		return desiredStatus
+	}
+
+	// when auto_apply run
+	if run.AutoApply {
+		if policyChecksEnabled {
+			// policy override requies human approval, run has reached no-op
+			desiredStatus = append(desiredStatus, tfe.RunPolicyOverride)
+		}
+		return desiredStatus
+	}
+
+	// when applyable/confirmable run
+	// Since the run should not end with applied/planned_and_finsished
+	// determine which various run stages it could complete with
+	if !run.PlanOnly && !run.AutoApply {
+		if costEstimateEnabled && !policyChecksEnabled {
+			desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
+		} else if policyChecksEnabled {
+			desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
+		} else {
+			desiredStatus = append(desiredStatus, tfe.RunPlanned)
+		}
+	}
+
+	return desiredStatus
 }
 
 func isRunComplete(run *tfe.Run, desiredStatus []tfe.RunStatus, noopStatus []tfe.RunStatus) (done bool, err error) {
