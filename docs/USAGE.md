@@ -95,3 +95,32 @@ docker run -it \
   hashicorp/tfci:latest \
   tfci run show --help
 ```
+
+## Usage with Terraform Enterprise
+If Terraform Enterprise is using TLS certificates signed by a private CA build a custom image.
+
+1. Create a directroy named `docker-tfci-custom`
+2. Change into that directory
+3. Create a file in that directory named `Dockerfile`
+4. Add the following and substitute `/path/to/ca.crt` for the path to your CA certificate:
+
+```dockerfile
+FROM hashicorp/tfci:latest
+COPY /path/to/ca.crt /usr/local/share/ca-certificates/
+RUN apk --no-cache add ca-certificates
+RUN update-ca-certificates
+```
+
+5. Build the image from the docker file like so replacing `registry.example.com/namespace` with your container registries address and namespace and whatever you wish to name the container.
+
+```sh
+docker build -t registry.example.com/namespace/tfci-custom .
+```
+
+> Note: If you are using GitLab as your container registry see [Naming Convention for Container Images](https://docs.gitlab.com/ee/user/packages/container_registry/#naming-convention-for-your-container-images)
+
+Push the custom container to your container registry like so
+
+```sh
+docker push registry.example.com/namespace/tfci-custom
+```
