@@ -5,6 +5,12 @@
 
 ## Bug Fixes
 * Fixes issue with `payload` output missing from `run create`, `run show`, `upload`, `plan output` commands by @mjyocca [#46](https://github.com/hashicorp/tfc-workflows-tooling/pull/46)
+* Fixes race condition with the `run create` command when an `auto-apply` configured TFC/TFE workspace exits too soon by @mjyocca [#55](https://github.com/hashicorp/tfc-workflows-tooling/pull/55)
+
+# v1.0.4 (patch-v1.0.4)
+
+## Bug Fixes
+* Fixes issue with `payload` output missing from `run create`, `run show`, `upload`, `plan output` commands by @mjyocca [#46](https://github.com/hashicorp/tfc-workflows-tooling/pull/46)
 
 # v1.0.3
 
