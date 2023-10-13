@@ -103,7 +103,12 @@ func TestRunService_CreateRun(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		// reassign loop variable to prevent scope capture
+		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			// allow these test cases to run in parallel
+			t.Parallel()
+
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
