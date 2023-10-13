@@ -508,14 +508,14 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 	// when plan_only run
 	if run.PlanOnly {
 		// plan only runs will result in default desired slice
-		// most likely planned_and_finsiehd or policy set failure
+		// most likely planned_and_finished or policy_soft_failed
 		return desiredStatus
 	}
 
 	// when auto_apply run
 	if run.AutoApply {
 		if policyChecksEnabled {
-			// policy override requies human approval, run has reached no-op
+			// policy override requies human approval before proceeding, run has reached no-op
 			desiredStatus = append(desiredStatus, tfe.RunPolicyOverride)
 		}
 		return desiredStatus

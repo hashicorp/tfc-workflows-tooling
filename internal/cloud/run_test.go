@@ -71,6 +71,32 @@ func TestRunService_CreateRun(t *testing.T) {
 			},
 			finalStatus: tfe.RunApplied,
 		},
+		{
+			name:          "confirmable-run",
+			orgName:       "test",
+			workspaceName: "my-workspace",
+			ctx:           context.Background(),
+			tfeWorkspace:  &tfe.Workspace{ID: "ws-***"},
+			tfeConfigVersion: &tfe.ConfigurationVersion{
+				ID:     "cv-***",
+				Status: tfe.ConfigurationUploaded,
+			},
+			tfeRun: &tfe.Run{
+				ID: "run-***",
+				CostEstimate: &tfe.CostEstimate{
+					ID: "cost-******",
+				},
+				PolicyChecks: []*tfe.PolicyCheck{
+					{ID: "pol-****"},
+				},
+			},
+			statusChanges: []tfe.RunStatus{
+				tfe.RunPlanning,
+				tfe.RunPlanned,
+				tfe.RunCostEstimated,
+			},
+			finalStatus: tfe.RunPolicyChecked,
+		},
 	}
 
 	for _, tc := range testCases {
