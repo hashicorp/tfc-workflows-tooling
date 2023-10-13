@@ -51,6 +51,35 @@ var NoopStatus = []tfe.RunStatus{
 	PreApplyAwaitingDecision,
 }
 
+type CreateRunOptions struct {
+	Organization           string
+	Workspace              string
+	ConfigurationVersionID string
+	Message                string
+	PlanOnly               bool
+	RunVariables           []*tfe.RunVariable
+}
+
+type ApplyRunOptions struct {
+	RunID   string
+	Comment string
+}
+
+type GetRunOptions struct {
+	RunID string
+}
+
+type DiscardRunOptions struct {
+	RunID   string
+	Comment string
+}
+
+type CancelRunOptions struct {
+	RunID       string
+	Comment     string
+	ForceCancel bool
+}
+
 type RunService interface {
 	RunLink(context.Context, string, *tfe.Run) (string, error)
 	GetRun(context.Context, GetRunOptions) (*tfe.Run, error)
@@ -468,35 +497,6 @@ func NewRunService(tfe *tfe.Client) RunService {
 	return &runService{tfe}
 }
 
-type CreateRunOptions struct {
-	Organization           string
-	Workspace              string
-	ConfigurationVersionID string
-	Message                string
-	PlanOnly               bool
-	RunVariables           []*tfe.RunVariable
-}
-
-type ApplyRunOptions struct {
-	RunID   string
-	Comment string
-}
-
-type GetRunOptions struct {
-	RunID string
-}
-
-type DiscardRunOptions struct {
-	RunID   string
-	Comment string
-}
-
-type CancelRunOptions struct {
-	RunID       string
-	Comment     string
-	ForceCancel bool
-}
-
 func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEnabled bool) []tfe.RunStatus {
 	// shared desired status across all runs
 	desiredStatus := []tfe.RunStatus{
@@ -508,6 +508,7 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 	// when plan_only run
 	if run.PlanOnly {
 		// plan only runs will result in default desired slice
+		// most likely planned_and_finsiehd or policy set failure
 		return desiredStatus
 	}
 
@@ -521,8 +522,7 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 	}
 
 	// when applyable/confirmable run
-	// Since the run should not end with applied/planned_and_finsished
-	// determine which various run stages it could complete with
+	// determine which various run status it can end with
 	if !run.PlanOnly && !run.AutoApply {
 		if costEstimateEnabled && !policyChecksEnabled {
 			desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
