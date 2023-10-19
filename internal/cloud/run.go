@@ -515,7 +515,7 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 	// when auto_apply run
 	if run.AutoApply {
 		if policyChecksEnabled {
-			// policy override requies human approval before proceeding, run has reached no-op
+			// policy override requires human approval before proceeding, run has reached no-op
 			desiredStatus = append(desiredStatus, tfe.RunPolicyOverride)
 		}
 		return desiredStatus
@@ -523,14 +523,12 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 
 	// when applyable/confirmable run
 	// determine which various run status it can end with
-	if !run.PlanOnly && !run.AutoApply {
-		if costEstimateEnabled && !policyChecksEnabled {
-			desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
-		} else if policyChecksEnabled {
-			desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
-		} else {
-			desiredStatus = append(desiredStatus, tfe.RunPlanned)
-		}
+	if costEstimateEnabled && !policyChecksEnabled {
+		desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
+	} else if policyChecksEnabled {
+		desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
+	} else {
+		desiredStatus = append(desiredStatus, tfe.RunPlanned)
 	}
 
 	return desiredStatus
