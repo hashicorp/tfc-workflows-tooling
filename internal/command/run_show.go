@@ -30,19 +30,19 @@ func (c *ShowRunCommand) Run(args []string) int {
 	if err := flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error("showing a run requires a valid run id")
+		c.ui.Error("showing a run requires a valid run id")
 		return 1
 	}
 
 	// fetch run
-	run, err := c.cloud.GetRun(c.Context, cloud.GetRunOptions{
+	run, err := c.cloud.GetRun(c.appCtx, cloud.GetRunOptions{
 		RunID: c.RunID,
 	})
 
@@ -50,14 +50,14 @@ func (c *ShowRunCommand) Run(args []string) int {
 		status := c.resolveStatus(err)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("error showing run, '%s' in Terraform Cloud: %s", c.RunID, err.Error()))
-		c.Ui.Output(c.closeOutput())
+		c.ui.Error(fmt.Sprintf("error showing run, '%s' in Terraform Cloud: %s", c.RunID, err.Error()))
+		c.ui.Output(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.Ui.Output(c.closeOutput())
+	c.ui.Output(c.closeOutput())
 	return 0
 }
 
@@ -66,7 +66,7 @@ func (c *ShowRunCommand) addRunDetails(run *tfe.Run) {
 		return
 	}
 
-	runLink, _ := c.cloud.RunLink(c.Context, c.Organization, run)
+	runLink, _ := c.cloud.RunLink(c.appCtx, c.organization, run)
 	if runLink != "" {
 		c.addOutput("run_link", runLink)
 	}
@@ -81,7 +81,7 @@ func (c *ShowRunCommand) addRunDetails(run *tfe.Run) {
 		c.addOutput("cost_estimation_id", run.CostEstimate.ID)
 		c.addOutput("cost_estimation_status", string(run.CostEstimate.Status))
 		if run.CostEstimate.ErrorMessage != "" {
-			c.Ui.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
+			c.ui.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
 		}
 	}
 

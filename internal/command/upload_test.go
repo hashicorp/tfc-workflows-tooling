@@ -27,8 +27,8 @@ func meta(cv *tfe.ConfigurationVersion) *Meta {
 			configurationVersion: cv,
 		},
 	})
-	meta.Ui = &cli.MockUi{}
-	meta.Env = &environment.CI{}
+	meta.ui = &cli.MockUi{}
+	meta.env = &environment.CI{}
 	return meta
 }
 

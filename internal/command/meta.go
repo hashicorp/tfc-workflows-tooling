@@ -26,23 +26,27 @@ const (
 
 type Meta struct {
 	// Organization for Terraform Cloud installation
-	Organization string
+	organization string
 	// cli ui settings
-	Ui cli.Ui
+	ui cli.Ui
 	// parent context
-	Context context.Context
+	appCtx context.Context
 	// CI environment variables & output
-	Env *environment.CI
+	env *environment.CI
 	// shared go-tfe client
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
+	// json flag
+	json bool
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f := flag.NewFlagSet(name, flag.ContinueOnError)
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
+
+	f.BoolVar(&c.json, "json", false, "")
 
 	return f
 }
@@ -98,10 +102,10 @@ func (c *Meta) closeOutput() string {
 	}
 
 	// check to see if we're running in CI environment
-	if c.Env.Context != nil {
+	if c.env.Context != nil {
 		// pass output data and close signifying we're done
-		c.Env.Context.SetOutput(platOutput)
-		c.Env.Context.CloseOutput()
+		c.env.Context.SetOutput(platOutput)
+		c.env.Context.CloseOutput()
 	}
 
 	outJson, err := json.MarshalIndent(stdOutput, "", "  ")
@@ -109,6 +113,38 @@ func (c *Meta) closeOutput() string {
 		return string(err.Error())
 	}
 	return string(outJson)
+}
+
+func WithOrg(org string) func(*Meta) {
+	return func(m *Meta) {
+		m.organization = org
+	}
+}
+
+func WithJson(jsonFlag bool) func(*Meta) {
+	return func(m *Meta) {
+		m.json = jsonFlag
+	}
+}
+
+func WithUi(ui cli.Ui) func(*Meta) {
+	return func(m *Meta) {
+		m.ui = ui
+	}
+}
+
+func NewMetaOpts(ctx context.Context, tfeClient *cloud.Cloud, ciEnv *environment.CI, setters ...func(*Meta)) *Meta {
+	m := &Meta{
+		cloud:  tfeClient,
+		appCtx: ctx,
+		env:    ciEnv,
+	}
+
+	for _, setter := range setters {
+		setter(m)
+	}
+
+	return m
 }
 
 func NewMeta(c *cloud.Cloud) *Meta {

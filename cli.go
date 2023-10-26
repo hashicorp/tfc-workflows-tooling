@@ -19,6 +19,7 @@ var (
 	hostnameFlag     = flag.String("hostname", "", "The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to Terraform Cloud (app.terraform.io)")
 	tokenFlag        = flag.String("token", "", "The token used to authenticate with Terraform Cloud. Defaults to reading `TF_API_TOKEN` environment variable")
 	organizationFlag = flag.String("organization", "", "Terraform Cloud Organization Name")
+	json             = flag.Bool("json", false, "")
 )
 
 func newCliRunner() (*cli.CLI, error) {
@@ -48,13 +49,16 @@ func newCliRunner() (*cli.CLI, error) {
 		return nil, err
 	}
 
-	c := cloud.NewCloud(tfe)
+	tfeClient := cloud.NewCloud(tfe)
 
-	meta := command.NewMeta(c)
-	meta.Ui = Ui
-	meta.Organization = *organizationFlag
-	meta.Context = appCtx
-	meta.Env = env
+	meta := command.NewMetaOpts(
+		appCtx,
+		tfeClient,
+		env,
+		command.WithOrg(*organizationFlag),
+		command.WithUi(Ui),
+		command.WithJson(*json),
+	)
 
 	cliRunner.Commands = map[string]cli.CommandFactory{
 		"upload": func() (cli.Command, error) {

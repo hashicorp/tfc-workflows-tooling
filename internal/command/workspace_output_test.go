@@ -49,8 +49,8 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 	}
 	ui := cli.NewMockUi()
 	meta := NewMeta(cloudMockService)
-	meta.Ui = ui
-	meta.Env = &environment.CI{}
+	meta.ui = ui
+	meta.env = &environment.CI{}
 
 	return ui, &WorkspaceOutputCommand{Meta: meta}
 }
