@@ -176,6 +176,7 @@ func TestRunService_CreateRun(t *testing.T) {
 					ConfigurationVersions: configVersionMock,
 					Runs:                  runsMock,
 				},
+				writer: &defaultWriter{},
 			}
 
 			_, err := client.CreateRun(tc.ctx, CreateRunOptions{
