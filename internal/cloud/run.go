@@ -52,6 +52,36 @@ var NoopStatus = []tfe.RunStatus{
 	PreApplyAwaitingDecision,
 }
 
+type CreateRunOptions struct {
+	Organization           string
+	Workspace              string
+	ConfigurationVersionID string
+	Message                string
+	PlanOnly               bool
+	SavePlan               bool
+	RunVariables           []*tfe.RunVariable
+}
+
+type ApplyRunOptions struct {
+	RunID   string
+	Comment string
+}
+
+type GetRunOptions struct {
+	RunID string
+}
+
+type DiscardRunOptions struct {
+	RunID   string
+	Comment string
+}
+
+type CancelRunOptions struct {
+	RunID       string
+	Comment     string
+	ForceCancel bool
+}
+
 type RunService interface {
 	RunLink(context.Context, string, *tfe.Run) (string, error)
 	GetRun(context.Context, GetRunOptions) (*tfe.Run, error)
@@ -140,6 +170,11 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 
 	fmt.Printf("Created Run ID: %s\n", run.ID)
 
+	costEstimateEnabled, policyChecksEnabled := hasCostEstimate(run), hasPolicyChecks(run)
+	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
+
+	log.Printf("[DEBUG] PlanOnly: %t, AutoApply: %t, CostEstimation: %t, PolicyChecks: %t", run.PlanOnly, run.AutoApply, costEstimateEnabled, policyChecksEnabled)
+
 	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
 		log.Printf("[DEBUG] Monitoring run status...")
 		r, err := service.GetRun(ctx, GetRunOptions{
@@ -153,29 +188,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 			return err
 		}
 
-		costEstimateEnabled, policyChecksEnabled := hasCostEstimate(r), hasPolicyChecks(r)
-
 		fmt.Printf("Run Status: '%s'\n", run.Status)
-
-		log.Printf("[DEBUG] PlanOnly: %t, SavePlan: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, r.SavePlan, costEstimateEnabled, policyChecksEnabled)
-
-		desiredStatus := []tfe.RunStatus{
-			tfe.RunPolicySoftFailed,
-			tfe.RunPlannedAndFinished,
-			tfe.RunApplied,
-		}
-
-		if !r.PlanOnly {
-			if costEstimateEnabled && !policyChecksEnabled {
-				desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
-			} else if policyChecksEnabled {
-				desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
-			} else if r.SavePlan {
-				desiredStatus = append(desiredStatus, tfe.RunPlannedAndSaved)
-			} else {
-				desiredStatus = append(desiredStatus, tfe.RunPlanned)
-			}
-		}
 
 		done, err := isRunComplete(r, desiredStatus, NoopStatus)
 		if err != nil {
@@ -487,34 +500,47 @@ func NewRunService(tfe *tfe.Client) RunService {
 	return &runService{tfe}
 }
 
-type CreateRunOptions struct {
-	Organization           string
-	Workspace              string
-	ConfigurationVersionID string
-	Message                string
-	PlanOnly               bool
-	SavePlan               bool
-	RunVariables           []*tfe.RunVariable
-}
+func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEnabled bool) []tfe.RunStatus {
+	// shared desired status across all runs
+	desiredStatus := []tfe.RunStatus{
+		tfe.RunPolicySoftFailed,
+		tfe.RunPlannedAndFinished,
+		tfe.RunPlannedAndSaved,
+		tfe.RunApplied,
+	}
 
-type ApplyRunOptions struct {
-	RunID   string
-	Comment string
-}
+	// when plan_only run
+	if run.PlanOnly {
+		// plan only runs will result in default desired slice
+		// most likely planned_and_finished or policy_soft_failed
+		return desiredStatus
+	}
 
-type GetRunOptions struct {
-	RunID string
-}
+	// when auto_apply run
+	if run.AutoApply {
+		if policyChecksEnabled {
+			// policy override requires human approval before proceeding, run has reached no-op
+			desiredStatus = append(desiredStatus, tfe.RunPolicyOverride)
+		}
+		return desiredStatus
+	}
 
-type DiscardRunOptions struct {
-	RunID   string
-	Comment string
-}
+	// when applyable/confirmable run
+	// determine which various run status it can end with
+	if costEstimateEnabled && !policyChecksEnabled {
+		// cost_estimation executes prior to sentinel policies
+		// if we expect `"cost_estimated"` as a final step, the cmd will eject too early
+		desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
+	} else if policyChecksEnabled {
+		// account for `"policy_checked"` & `"policy_override"` if policy checks are enabled for the run
+		desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
+	} else {
+		// applyable/confirmable run has no cost estimation nor sentinel policies
+		// run task stages are accounted for in the Noop RunStatus slice
+		desiredStatus = append(desiredStatus, tfe.RunPlanned)
+	}
 
-type CancelRunOptions struct {
-	RunID       string
-	Comment     string
-	ForceCancel bool
+	return desiredStatus
 }
 
 func isRunComplete(run *tfe.Run, desiredStatus []tfe.RunStatus, noopStatus []tfe.RunStatus) (done bool, err error) {
