@@ -34,7 +34,7 @@ func (w *mockWriter) Error(message string) {
 }
 
 func newMockWriter(ui cli.Ui, json bool) *mockWriter {
-	return &mockWriter{&cli.MockUi{}, false}
+	return &mockWriter{ui, false}
 }
 
 func meta(cv *tfe.ConfigurationVersion) *Meta {

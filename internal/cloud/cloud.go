@@ -9,11 +9,13 @@ import (
 
 type Writer interface {
 	Output(msg string)
+	Error(msg string)
 }
 
 type defaultWriter struct{}
 
 func (d *defaultWriter) Output(msg string) {}
+func (d *defaultWriter) Error(msg string)  {}
 
 // compile time check
 var _ Writer = (*defaultWriter)(nil)

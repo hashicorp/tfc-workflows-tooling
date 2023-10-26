@@ -39,7 +39,8 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 			},
 		}
 	}
-	writer := newMockWriter(&cli.MockUi{}, false)
+	ui := cli.NewMockUi()
+	writer := newMockWriter(ui, false)
 	cloudMockService := &cloud.Cloud{
 		WorkspaceService: &WorkspaceOutputReader{
 			svo: &tfe.StateVersionOutputsList{
@@ -47,7 +48,7 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 			},
 		},
 	}
-	ui := cli.NewMockUi()
+
 	meta := NewMetaOpts(context.Background(), cloudMockService, &environment.CI{}, WithWriter(writer))
 
 	return ui, &WorkspaceOutputCommand{Meta: meta}

@@ -68,7 +68,6 @@ func newCliRunner() (*cli.CLI, error) {
 		env,
 		cmd.WithOrg(*organizationFlag),
 		cmd.WithWriter(writer),
-		// command.WithJson(*json),
 	)
 
 	cliRunner.Commands = map[string]cli.CommandFactory{
