@@ -19,6 +19,7 @@ type UploadConfigurationCommand struct {
 	Workspace   string
 	Directory   string
 	Speculative bool
+	Provisional bool
 }
 
 func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
@@ -27,7 +28,7 @@ func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
 	f.StringVar(&c.Workspace, "workspace", "", "The name of the workspace to create the new configuration version in.")
 	f.StringVar(&c.Directory, "directory", "", "Path to the configuration files on disk.")
 	f.BoolVar(&c.Speculative, "speculative", false, "When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.")
-
+	f.BoolVar(&c.Provisional, "provisional", false, "When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.")
 	return f
 }
 
@@ -40,7 +41,7 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 		return 1
 	}
 
-	log.Printf("[DEBUG] uploading configuration with, workspace: %s, directory: %s, speculative: %t", c.Workspace, c.Directory, c.Speculative)
+	log.Printf("[DEBUG] uploading configuration with, workspace: %s, directory: %s, speculative: %t, provisional: %t", c.Workspace, c.Directory, c.Speculative, c.Provisional)
 
 	dirPath, dirError := filepath.Abs(c.Directory)
 	if dirError != nil {
@@ -57,6 +58,7 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 		Organization:           c.Organization,
 		ConfigurationDirectory: dirPath,
 		Speculative:            c.Speculative,
+		Provisional:            c.Provisional,
 	})
 
 	if cvError != nil {
@@ -108,6 +110,8 @@ Options:
 	-directory      Path to the terraform configuration files on disk.
 
 	-speculative    When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.
+
+	-provisional    When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.
 	`
 	return strings.TrimSpace(helpText)
 }

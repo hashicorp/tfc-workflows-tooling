@@ -38,6 +38,7 @@ func TestUploadConfigurationCommandRun(t *testing.T) {
 		Workspace   string
 		Directory   string
 		Speculative bool
+		Provisional bool
 	}
 
 	type args struct {
@@ -59,6 +60,7 @@ func TestUploadConfigurationCommandRun(t *testing.T) {
 				Workspace:   "ws-1",
 				Directory:   "dir/",
 				Speculative: false,
+				Provisional: false,
 			},
 			want: 0,
 		},
@@ -71,6 +73,7 @@ func TestUploadConfigurationCommandRun(t *testing.T) {
 				Workspace:   tt.fields.Workspace,
 				Directory:   tt.fields.Directory,
 				Speculative: tt.fields.Speculative,
+				Provisional: tt.fields.Provisional,
 			}
 			if got := c.Run(tt.args.args); got != tt.want {
 				t.Errorf("Run() = %v, want %v", got, tt.want)

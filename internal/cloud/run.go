@@ -39,6 +39,7 @@ var CancelNoopStatus = []tfe.RunStatus{
 	tfe.RunApplied,
 	tfe.RunPlanned,
 	tfe.RunPlannedAndFinished,
+	tfe.RunPlannedAndSaved,
 }
 
 var NoopStatus = []tfe.RunStatus{
@@ -126,6 +127,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	createOpts.Workspace = w
 	createOpts.Message = &options.Message
 	createOpts.PlanOnly = tfe.Bool(options.PlanOnly)
+	createOpts.SavePlan = tfe.Bool(options.SavePlan)
 	createOpts.Variables = options.RunVariables
 
 	// create the run
@@ -155,7 +157,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 
 		fmt.Printf("Run Status: '%s'\n", run.Status)
 
-		log.Printf("[DEBUG] PlanOnly: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, costEstimateEnabled, policyChecksEnabled)
+		log.Printf("[DEBUG] PlanOnly: %t, SavePlan: %t, CostEstimation: %t, PolicyChecks: %t", r.PlanOnly, r.SavePlan, costEstimateEnabled, policyChecksEnabled)
 
 		desiredStatus := []tfe.RunStatus{
 			tfe.RunPolicySoftFailed,
@@ -168,6 +170,8 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 				desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
 			} else if policyChecksEnabled {
 				desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
+			} else if r.SavePlan {
+				desiredStatus = append(desiredStatus, tfe.RunPlannedAndSaved)
 			} else {
 				desiredStatus = append(desiredStatus, tfe.RunPlanned)
 			}
@@ -489,6 +493,7 @@ type CreateRunOptions struct {
 	ConfigurationVersionID string
 	Message                string
 	PlanOnly               bool
+	SavePlan               bool
 	RunVariables           []*tfe.RunVariable
 }
 

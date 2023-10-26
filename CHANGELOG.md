@@ -3,6 +3,8 @@
 ## Enhancements
 * Adds new command, `workspace output list` to retrieve outputs for an existing Terraform Cloud workspace by @mjyocca [#29](https://github.com/hashicorp/tfc-workflows-tooling/pull/29)
 
+* Add support for saved plans by @1newsr [#57](https://github.com/hashicorp/tfc-workflows-tooling/pull/57)
+
 ## Bug Fixes
 * Fixes issue with `payload` output missing from `run create`, `run show`, `upload`, `plan output` commands by @mjyocca [#46](https://github.com/hashicorp/tfc-workflows-tooling/pull/46)
 

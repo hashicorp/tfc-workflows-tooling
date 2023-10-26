@@ -32,7 +32,11 @@ inputs:
     default: ""
   plan_only:
     required: false
-    description: Specifies if this is a speculative, plan-only run that Terraform cannot apply."
+    description: "Specifies if this is a speculative, plan-only run that Terraform cannot apply."
+    default: "false"
+  save_plan:
+    required: false
+    description: "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply."
     default: "false"
 
 outputs:
@@ -75,3 +79,4 @@ runs:
   - -configuration_version=${{ inputs.configuration_version }}
   - -message=${{ inputs.message }}
   - -plan-only=${{ inputs.plan_only }}
+  - -save-plan=${{ inputs.sava_plan }}
