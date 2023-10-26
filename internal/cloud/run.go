@@ -524,10 +524,15 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 	// when applyable/confirmable run
 	// determine which various run status it can end with
 	if costEstimateEnabled && !policyChecksEnabled {
+		// cost_estimation executes prior to sentinel policies
+		// if we expect `"cost_estimated"` as a final step, the cmd will eject too early
 		desiredStatus = append(desiredStatus, tfe.RunCostEstimated)
 	} else if policyChecksEnabled {
+		// account for `"policy_checked"` & `"policy_override"` if policy checks are enabled for the run
 		desiredStatus = append(desiredStatus, tfe.RunPolicyChecked, tfe.RunPolicyOverride)
 	} else {
+		// applyable/confirmable run has no cost estimation nor sentinel policies
+		// run task stages are accounted for in the Noop RunStatus slice
 		desiredStatus = append(desiredStatus, tfe.RunPlanned)
 	}
 
