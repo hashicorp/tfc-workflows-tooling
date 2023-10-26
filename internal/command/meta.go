@@ -47,7 +47,7 @@ func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f.Usage = func() {}
 
 	// flag parsed earlier
-	f.BoolVar(&c.json, "json", false, "")
+	f.BoolVar(&c.json, "json", false, "Suppresses all logs and instead returns output value in JSON format")
 
 	return f
 }
