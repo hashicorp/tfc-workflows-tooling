@@ -67,7 +67,7 @@ func newCliRunner() (*cli.CLI, error) {
 		cloudService,
 		env,
 		cmd.WithOrg(*organizationFlag),
-		cmd.WithWriter(writer),
+		cmd.WithUi(Ui),
 	)
 
 	cliRunner.Commands = map[string]cli.CommandFactory{

@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
+	"github.com/mitchellh/cli"
 )
 
 type Status string
@@ -22,11 +23,6 @@ const (
 	Timeout Status = "Timeout"
 	Noop    Status = "Noop"
 )
-
-type Writer interface {
-	Output(msg string)
-	Error(msg string)
-}
 
 type Meta struct {
 	// Organization for Terraform Cloud installation
@@ -39,14 +35,19 @@ type Meta struct {
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
-	// writes to cli.Ui
-	writer Writer
+	// cli ui settings
+	ui cli.Ui
+	// optional flag
+	json bool
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f := flag.NewFlagSet(name, flag.ContinueOnError)
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
+
+	// flag parsed earlier
+	f.BoolVar(&c.json, "json", false, "")
 
 	return f
 }
@@ -121,9 +122,9 @@ func WithOrg(org string) func(*Meta) {
 	}
 }
 
-func WithWriter(w Writer) func(*Meta) {
+func WithUi(ui cli.Ui) func(*Meta) {
 	return func(m *Meta) {
-		m.writer = w
+		m.ui = ui
 	}
 }
 

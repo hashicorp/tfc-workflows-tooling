@@ -347,7 +347,7 @@ func (service *runService) GetPlanLogs(ctx context.Context, planID string) error
 	}
 
 	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Plan Log"))
-	err = outputRunLogLines(logReader)
+	err = outputRunLogLines(logReader, service.writer)
 	if err != nil {
 		return err
 	}
@@ -367,7 +367,7 @@ func (service *runService) GetApplyLogs(ctx context.Context, applyID string) err
 	}
 
 	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Apply Log"))
-	err = outputRunLogLines(logReader)
+	err = outputRunLogLines(logReader, service.writer)
 	if err != nil {
 		return err
 	}
@@ -409,7 +409,7 @@ func (s *runService) GetPolicyCheckLogs(ctx context.Context, run *tfe.Run) error
 			logStart = false
 		}
 
-		err = outputRunLogLines(logReader)
+		err = outputRunLogLines(logReader, s.writer)
 		if err != nil {
 			return err
 		}
@@ -437,22 +437,22 @@ func (s *runService) LogTaskStage(ctx context.Context, run *tfe.Run, stage tfe.S
 	fmt.Println()
 	for _, task := range taskStages.Items {
 		if task.Stage == stage {
-			fmt.Printf("-------------- %s --------------\n", labelMap[string(stage)])
-			fmt.Printf("TaskStage (%s), Status: '%s', Stage: '%s'\n", task.ID, task.Status, task.Stage)
+			s.writer.Output(fmt.Sprintf("-------------- %s --------------\n", labelMap[string(stage)]))
+			s.writer.Output(fmt.Sprintf("TaskStage (%s), Status: '%s', Stage: '%s'\n", task.ID, task.Status, task.Stage))
 			for _, taskResult := range task.TaskResults {
 				taskResult, resErr := s.tfe.TaskResults.Read(ctx, taskResult.ID)
 				if resErr != nil {
 					return fmt.Errorf("error reading results for task results: %s", resErr.Error())
 				}
-				fmt.Printf("- TaskResult (%s), Name: '%s', Status: '%s', EnforcementLevel: '%s', Message: '%s'\n", taskResult.ID, taskResult.TaskName, taskResult.Status, taskResult.WorkspaceTaskEnforcementLevel, taskResult.Message)
+				s.writer.Output(fmt.Sprintf("- TaskResult (%s), Name: '%s', Status: '%s', EnforcementLevel: '%s', Message: '%s'\n", taskResult.ID, taskResult.TaskName, taskResult.Status, taskResult.WorkspaceTaskEnforcementLevel, taskResult.Message))
 			}
 			evaluations, pErr := s.tfe.PolicyEvaluations.List(ctx, task.ID, &tfe.PolicyEvaluationListOptions{})
 			if pErr != nil {
 				return fmt.Errorf("error reading results for policy evaluations: %s", pErr.Error())
 			}
 			for _, p := range evaluations.Items {
-				fmt.Printf("- PolicyEvalutation (%s), Status: '%s', PolicyKind: '%s'\n", p.ID, p.Status, p.PolicyKind)
-				fmt.Printf("  Passed: (%d), AdvisoryFailed: (%d), MandatoryFailed: (%d), Failed: (%d)\n", p.ResultCount.Passed, p.ResultCount.AdvisoryFailed, p.ResultCount.MandatoryFailed, p.ResultCount.Errored)
+				s.writer.Output(fmt.Sprintf("- PolicyEvalutation (%s), Status: '%s', PolicyKind: '%s'\n", p.ID, p.Status, p.PolicyKind))
+				s.writer.Output(fmt.Sprintf("  Passed: (%d), AdvisoryFailed: (%d), MandatoryFailed: (%d), Failed: (%d)\n", p.ResultCount.Passed, p.ResultCount.AdvisoryFailed, p.ResultCount.MandatoryFailed, p.ResultCount.Errored))
 			}
 			fmt.Println()
 		}
@@ -465,13 +465,13 @@ func (s *runService) LogCostEstimation(ctx context.Context, run *tfe.Run) {
 		return
 	}
 
-	fmt.Printf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID)
-	fmt.Printf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage)
-	fmt.Printf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost)
+	s.writer.Output(fmt.Sprintf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID))
+	s.writer.Output(fmt.Sprintf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage))
+	s.writer.Output(fmt.Sprintf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost))
 	fmt.Println()
 }
 
-func outputRunLogLines(logs io.Reader) error {
+func outputRunLogLines(logs io.Reader, writer Writer) error {
 	var err error
 	reader := bufio.NewReaderSize(logs, 64*1024)
 	for next := true; next; {
@@ -489,7 +489,7 @@ func outputRunLogLines(logs io.Reader) error {
 		}
 
 		if next || len(line) > 0 {
-			fmt.Println(string(line))
+			writer.Output(string(line))
 		}
 	}
 	return nil

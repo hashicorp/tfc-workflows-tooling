@@ -21,32 +21,32 @@ func (s *SuccessfulUploader) UploadConfig(_ context.Context, _ cloud.UploadOptio
 	return s.configurationVersion, nil
 }
 
-type mockWriter struct {
-	ui   cli.Ui
-	json bool
-}
+// type mockWriter struct {
+// 	ui   cli.Ui
+// 	json bool
+// }
 
-func (w *mockWriter) Output(message string) {
-	w.ui.Output(message)
-}
-func (w *mockWriter) Error(message string) {
-	w.ui.Output(message)
-}
+// func (w *mockWriter) Output(message string) {
+// 	w.ui.Output(message)
+// }
+// func (w *mockWriter) Error(message string) {
+// 	w.ui.Output(message)
+// }
 
-func newMockWriter(ui cli.Ui, json bool) *mockWriter {
-	return &mockWriter{ui, false}
-}
+// func newMockWriter(ui cli.Ui, json bool) *mockWriter {
+// 	return &mockWriter{ui, false}
+// }
 
 func meta(cv *tfe.ConfigurationVersion) *Meta {
 	ctx := context.Background()
-	writer := newMockWriter(&cli.MockUi{}, false)
+	ui := &cli.MockUi{}
 	cloudService := &cloud.Cloud{
 		ConfigVersionService: &SuccessfulUploader{
 			configurationVersion: cv,
 		},
 	}
 	env := &environment.CI{}
-	meta := NewMetaOpts(ctx, cloudService, env, WithWriter(writer))
+	meta := NewMetaOpts(ctx, cloudService, env, WithUi(ui))
 	return meta
 }
 

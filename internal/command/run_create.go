@@ -38,7 +38,7 @@ func (c *CreateRunCommand) Run(args []string) int {
 	if err := flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.writer.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
 
@@ -66,14 +66,14 @@ func (c *CreateRunCommand) Run(args []string) int {
 		errMsg := fmt.Sprintf("error while creating run in Terraform Cloud: %s", runError.Error())
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.writer.Error(errMsg)
-		c.writer.Output(c.closeOutput())
+		c.ui.Error(errMsg)
+		c.ui.Output(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.writer.Output(c.closeOutput())
+	c.ui.Output(c.closeOutput())
 	return 0
 }
 
@@ -98,7 +98,7 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 		c.addOutput("cost_estimation_id", run.CostEstimate.ID)
 		c.addOutput("cost_estimation_status", string(run.CostEstimate.Status))
 		if run.CostEstimate.ErrorMessage != "" {
-			c.writer.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
+			c.ui.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
 		}
 	}
 
@@ -114,7 +114,7 @@ func (c *CreateRunCommand) readPlanLogs(run *tfe.Run) {
 	c.cloud.LogTaskStage(c.appCtx, run, tfe.PrePlan)
 	// Plan
 	if pLogErr := c.cloud.GetPlanLogs(c.appCtx, run.Plan.ID); pLogErr != nil {
-		c.writer.Error(fmt.Sprintf("failed to read plan logs: %s", pLogErr.Error()))
+		c.ui.Error(fmt.Sprintf("failed to read plan logs: %s", pLogErr.Error()))
 	}
 	// Post Plan task stages
 	c.cloud.LogTaskStage(c.appCtx, run, tfe.PostPlan)
@@ -122,7 +122,7 @@ func (c *CreateRunCommand) readPlanLogs(run *tfe.Run) {
 	c.cloud.LogCostEstimation(c.appCtx, run)
 	// sentinel policies
 	if policyLogErr := c.cloud.GetPolicyCheckLogs(c.appCtx, run); policyLogErr != nil {
-		c.writer.Error(fmt.Sprintf("failed to read policy check logs: %s", policyLogErr.Error()))
+		c.ui.Error(fmt.Sprintf("failed to read policy check logs: %s", policyLogErr.Error()))
 	}
 }
 

@@ -32,7 +32,7 @@ func (c *WorkspaceOutputCommand) SetupCmd(args []string) (err error) {
 	if err = flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.writer.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return err
 	}
 	return
@@ -47,7 +47,7 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 	if c.Workspace == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.writer.Error("error workspace output list requires a workspace name")
+		c.ui.Error("error workspace output list requires a workspace name")
 		return 1
 	}
 
@@ -56,7 +56,7 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 		status := c.resolveStatus(svoErr)
 		c.addOutput("status", string(status))
 		c.closeOutput()
-		c.writer.Error(fmt.Sprintf("error retrieving workspace state version outputs: %s\n", svoErr.Error()))
+		c.ui.Error(fmt.Sprintf("error retrieving workspace state version outputs: %s\n", svoErr.Error()))
 		return 1
 	}
 
@@ -73,7 +73,7 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 		multiLine: true,
 	})
 	c.addOutput("status", string(Success))
-	c.writer.Output(c.closeOutput())
+	c.ui.Output(c.closeOutput())
 	return 0
 }
 
