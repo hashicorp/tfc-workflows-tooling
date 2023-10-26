@@ -34,14 +34,14 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if err := flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.writer.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error("cancelling a run requires a run id")
+		c.writer.Error("cancelling a run requires a run id")
 		return 1
 	}
 
@@ -51,7 +51,7 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if runErr != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
+		c.writer.Error(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
 		return 1
 	}
 
@@ -59,8 +59,8 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if c.ForceCancel && !run.Actions.IsForceCancelable {
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.ui.Error(fmt.Sprintf("run %s, cannot be force-cancelled", c.RunID))
-		c.ui.Output(c.closeOutput())
+		c.writer.Error(fmt.Sprintf("run %s, cannot be force-cancelled", c.RunID))
+		c.writer.Output(c.closeOutput())
 		return 1
 	}
 
@@ -68,8 +68,8 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if !c.ForceCancel && !run.Actions.IsCancelable {
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.ui.Error(fmt.Sprintf("run %s, cannot be cancelled", c.RunID))
-		c.ui.Output(c.closeOutput())
+		c.writer.Error(fmt.Sprintf("run %s, cannot be cancelled", c.RunID))
+		c.writer.Output(c.closeOutput())
 		return 1
 	}
 
@@ -86,14 +86,14 @@ func (c *CancelRunCommand) Run(args []string) int {
 		status := c.resolveStatus(cancelErr)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.ui.Error(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, cancelErr.Error()))
-		c.ui.Output(c.closeOutput())
+		c.writer.Error(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, cancelErr.Error()))
+		c.writer.Output(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.ui.Output(c.closeOutput())
+	c.writer.Output(c.closeOutput())
 	return 0
 }
 

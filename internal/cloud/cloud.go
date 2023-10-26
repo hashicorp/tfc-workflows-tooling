@@ -7,6 +7,17 @@ import (
 	"github.com/hashicorp/go-tfe"
 )
 
+type Writer interface {
+	Output(msg string)
+}
+
+type defaultWriter struct{}
+
+func (d *defaultWriter) Output(msg string) {}
+
+// compile time check
+var _ Writer = (*defaultWriter)(nil)
+
 type Cloud struct {
 	ConfigVersionService
 	RunService
@@ -14,11 +25,11 @@ type Cloud struct {
 	WorkspaceService
 }
 
-func NewCloud(c *tfe.Client) *Cloud {
+func NewCloud(c *tfe.Client, w Writer) *Cloud {
 	return &Cloud{
-		ConfigVersionService: NewConfigVersionService(c),
-		RunService:           NewRunService(c),
-		PlanService:          NewPlanService(c),
-		WorkspaceService:     NewWorkspaceService(c),
+		ConfigVersionService: NewConfigVersionService(c, w),
+		RunService:           NewRunService(c, w),
+		PlanService:          NewPlanService(c, w),
+		WorkspaceService:     NewWorkspaceService(c, w),
 	}
 }

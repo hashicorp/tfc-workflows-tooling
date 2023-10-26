@@ -12,7 +12,6 @@ import (
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
-	"github.com/mitchellh/cli"
 )
 
 type Status string
@@ -24,11 +23,14 @@ const (
 	Noop    Status = "Noop"
 )
 
+type Writer interface {
+	Output(msg string)
+	Error(msg string)
+}
+
 type Meta struct {
 	// Organization for Terraform Cloud installation
 	organization string
-	// cli ui settings
-	ui cli.Ui
 	// parent context
 	appCtx context.Context
 	// CI environment variables & output
@@ -37,16 +39,14 @@ type Meta struct {
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
-	// json flag
-	json bool
+	// writes to cli.Ui
+	writer Writer
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f := flag.NewFlagSet(name, flag.ContinueOnError)
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
-
-	f.BoolVar(&c.json, "json", false, "")
 
 	return f
 }
@@ -121,23 +121,18 @@ func WithOrg(org string) func(*Meta) {
 	}
 }
 
-func WithJson(jsonFlag bool) func(*Meta) {
+func WithWriter(w Writer) func(*Meta) {
 	return func(m *Meta) {
-		m.json = jsonFlag
-	}
-}
-
-func WithUi(ui cli.Ui) func(*Meta) {
-	return func(m *Meta) {
-		m.ui = ui
+		m.writer = w
 	}
 }
 
 func NewMetaOpts(ctx context.Context, tfeClient *cloud.Cloud, ciEnv *environment.CI, setters ...func(*Meta)) *Meta {
 	m := &Meta{
-		cloud:  tfeClient,
-		appCtx: ctx,
-		env:    ciEnv,
+		cloud:    tfeClient,
+		appCtx:   ctx,
+		env:      ciEnv,
+		messages: make(map[string]*outputMessage),
 	}
 
 	for _, setter := range setters {

@@ -32,14 +32,14 @@ func (c *ApplyRunCommand) Run(args []string) int {
 	if err := flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.writer.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error("applying a run requires a valid run id")
+		c.writer.Error("applying a run requires a valid run id")
 		return 1
 	}
 
@@ -51,7 +51,7 @@ func (c *ApplyRunCommand) Run(args []string) int {
 	if runErr != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
+		c.writer.Error(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
 		return 1
 	}
 
@@ -60,14 +60,14 @@ func (c *ApplyRunCommand) Run(args []string) int {
 		if run.Status == tfe.RunPlannedAndFinished {
 			c.addOutput("status", string(Noop))
 			c.addRunDetails(run)
-			c.ui.Error(fmt.Sprintf("run %s, is planned and finished. There is nothing to do.", c.RunID))
-			c.ui.Output(c.closeOutput())
+			c.writer.Error(fmt.Sprintf("run %s, is planned and finished. There is nothing to do.", c.RunID))
+			c.writer.Output(c.closeOutput())
 			return 0
 		}
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.ui.Error(fmt.Sprintf("run %s, cannot be applied", c.RunID))
-		c.ui.Output(c.closeOutput())
+		c.writer.Error(fmt.Sprintf("run %s, cannot be applied", c.RunID))
+		c.writer.Output(c.closeOutput())
 		return 1
 	}
 
@@ -84,14 +84,14 @@ func (c *ApplyRunCommand) Run(args []string) int {
 		status := c.resolveStatus(applyError)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.ui.Error(fmt.Sprintf("error applying run, '%s' in Terraform Cloud: %s", c.RunID, applyError.Error()))
-		c.ui.Output(c.closeOutput())
+		c.writer.Error(fmt.Sprintf("error applying run, '%s' in Terraform Cloud: %s", c.RunID, applyError.Error()))
+		c.writer.Output(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.ui.Output(c.closeOutput())
+	c.writer.Output(c.closeOutput())
 	return 0
 }
 
@@ -112,7 +112,7 @@ func (c *ApplyRunCommand) readApplyLogs(run *tfe.Run) {
 	c.cloud.LogTaskStage(c.appCtx, run, tfe.PreApply)
 	// apply logs
 	if logErr := c.cloud.GetApplyLogs(c.appCtx, run.Apply.ID); logErr != nil {
-		c.ui.Error(fmt.Sprintf("failed to read apply logs: %s", logErr.Error()))
+		c.writer.Error(fmt.Sprintf("failed to read apply logs: %s", logErr.Error()))
 	}
 }
 

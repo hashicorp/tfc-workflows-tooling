@@ -25,6 +25,8 @@ type ConfigVersionService interface {
 
 type configVersionService struct {
 	*tfe.Client
+
+	writer Writer
 }
 
 func (service *configVersionService) UploadConfig(ctx context.Context, options UploadOptions) (*tfe.ConfigurationVersion, error) {
@@ -45,7 +47,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 		return configVersion, cvErr
 	}
 
-	fmt.Printf("Configuration Version has been created: %s\n", configVersion.ID)
+	service.writer.Output(fmt.Sprintf("Configuration Version has been created: %s\n", configVersion.ID))
 
 	err := service.ConfigurationVersions.Upload(ctx, configVersion.UploadURL, options.ConfigurationDirectory)
 
@@ -54,14 +56,15 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 		return configVersion, err
 	}
 
-	fmt.Println("Uploading configuration...")
+	service.writer.Output("Uploading configuration...")
+
 	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
 		log.Printf("[DEBUG] Monitoring Upload Status...")
 		cv, err := service.ConfigurationVersions.Read(ctx, configVersion.ID)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Upload Status: '%s'\n", cv.Status)
+		service.writer.Output(fmt.Sprintf("Upload Status: '%s'\n", cv.Status))
 		if cv.Status == tfe.ConfigurationUploaded || cv.Status == tfe.ConfigurationErrored {
 			// update configVersion to latest results
 			configVersion = cv
@@ -78,6 +81,6 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	return configVersion, err
 }
 
-func NewConfigVersionService(c *tfe.Client) ConfigVersionService {
-	return &configVersionService{c}
+func NewConfigVersionService(c *tfe.Client, w Writer) ConfigVersionService {
+	return &configVersionService{c, w}
 }

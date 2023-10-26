@@ -96,6 +96,8 @@ type RunService interface {
 
 type runService struct {
 	tfe *tfe.Client
+
+	writer Writer
 }
 
 func (service *runService) RunLink(ctx context.Context, organization string, run *tfe.Run) (string, error) {
@@ -107,7 +109,7 @@ func (service *runService) RunLink(ctx context.Context, organization string, run
 	}
 	url := service.tfe.BaseURL()
 	link := fmt.Sprintf("%s://%s/app/%s/workspaces/%s/runs/%s", url.Scheme, url.Host, organization, tfWorkspace.Name, run.ID)
-	fmt.Printf("View Run in Terraform Cloud: %s\n", link)
+	service.writer.Output(fmt.Sprintf("View Run in Terraform Cloud: %s\n", link))
 
 	return link, nil
 }
@@ -165,7 +167,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 		return nil, err
 	}
 
-	fmt.Printf("Created Run ID: %s\n", run.ID)
+	service.writer.Output(fmt.Sprintf("Created Run ID: %s\n", run.ID))
 
 	costEstimateEnabled, policyChecksEnabled := hasCostEstimate(run), hasPolicyChecks(run)
 	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
@@ -185,7 +187,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 			return err
 		}
 
-		fmt.Printf("Run Status: '%s'\n", run.Status)
+		service.writer.Output(fmt.Sprintf("Run Status: '%s'\n", run.Status))
 
 		done, err := isRunComplete(r, desiredStatus, NoopStatus)
 		if err != nil {
@@ -227,7 +229,7 @@ func (service *runService) ApplyRun(ctx context.Context, options ApplyRunOptions
 			return runErr
 		}
 
-		fmt.Printf("Run Status: '%s'\n", run.Status)
+		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunApplied}, NoopStatus)
 		if err != nil {
@@ -266,7 +268,7 @@ func (service *runService) DiscardRun(ctx context.Context, options DiscardRunOpt
 			return runErr
 		}
 
-		fmt.Printf("Run Status: '%s'\n", run.Status)
+		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunDiscarded}, DiscardNoopStatus)
 		if err != nil {
@@ -314,7 +316,7 @@ func (service *runService) CancelRun(ctx context.Context, options CancelRunOptio
 			return runErr
 		}
 
-		fmt.Printf("Run Status: '%s'\n", run.Status)
+		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunCanceled}, CancelNoopStatus)
 		if err != nil {
@@ -344,7 +346,7 @@ func (service *runService) GetPlanLogs(ctx context.Context, planID string) error
 		return err
 	}
 
-	fmt.Printf("\n-------------- %s --------------\n", "Plan Log")
+	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Plan Log"))
 	err = outputRunLogLines(logReader)
 	if err != nil {
 		return err
@@ -364,7 +366,7 @@ func (service *runService) GetApplyLogs(ctx context.Context, applyID string) err
 		return err
 	}
 
-	fmt.Printf("\n-------------- %s --------------\n", "Apply Log")
+	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Apply Log"))
 	err = outputRunLogLines(logReader)
 	if err != nil {
 		return err
@@ -403,7 +405,7 @@ func (s *runService) GetPolicyCheckLogs(ctx context.Context, run *tfe.Run) error
 
 		// only log for first sentinel policy
 		if logStart {
-			fmt.Println("-------------- Sentinel Policy Checks --------------")
+			s.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Sentinel Policy Checks"))
 			logStart = false
 		}
 
@@ -493,8 +495,8 @@ func outputRunLogLines(logs io.Reader) error {
 	return nil
 }
 
-func NewRunService(tfe *tfe.Client) RunService {
-	return &runService{tfe}
+func NewRunService(tfe *tfe.Client, w Writer) RunService {
+	return &runService{tfe, w}
 }
 
 func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEnabled bool) []tfe.RunStatus {

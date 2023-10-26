@@ -18,6 +18,8 @@ type WorkspaceService interface {
 
 type workspaceService struct {
 	tfe *tfe.Client
+
+	writer Writer
 }
 
 // wait 5 minutes for current state version finish processing
@@ -75,6 +77,6 @@ func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string,
 	return svoList, svoErr
 }
 
-func NewWorkspaceService(tfe *tfe.Client) *workspaceService {
-	return &workspaceService{tfe}
+func NewWorkspaceService(tfe *tfe.Client, w Writer) *workspaceService {
+	return &workspaceService{tfe, w}
 }

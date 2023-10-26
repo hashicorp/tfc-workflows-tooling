@@ -71,5 +71,7 @@ func NewTfeClient(hostFlag string, tokenFlag string, platform string) (*tfe.Clie
 
 	client.RetryServerErrors(true)
 
+	log.Printf("[DEBUG] TFC/E Version: %s", client.RemoteAPIVersion())
+
 	return client, nil
 }

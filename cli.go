@@ -9,9 +9,10 @@ import (
 	"os"
 
 	"github.com/hashicorp/tfci/internal/cloud"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/hashicorp/tfci/version"
 
-	"github.com/hashicorp/tfci/internal/command"
+	cmd "github.com/hashicorp/tfci/internal/command"
 	"github.com/mitchellh/cli"
 )
 
@@ -36,6 +37,16 @@ func newCliRunner() (*cli.CLI, error) {
 	cliRunner := cli.NewCLI("tfc", version.GetVersion())
 	cliRunner.Args = newArgs
 
+	// global check if --json flag has been passed
+	// otherwise can't determine flag until subcommand Run()s
+	for _, arg := range newArgs {
+		if arg == "-json" || arg == "--json" {
+			*json = true
+			continue
+		}
+	}
+
+	writer := writer.NewWriter(Ui, *json)
 	orgEnv := os.Getenv("TF_CLOUD_ORGANIZATION")
 
 	if *organizationFlag == "" && orgEnv != "" {
@@ -49,41 +60,41 @@ func newCliRunner() (*cli.CLI, error) {
 		return nil, err
 	}
 
-	tfeClient := cloud.NewCloud(tfe)
+	cloudService := cloud.NewCloud(tfe, writer)
 
-	meta := command.NewMetaOpts(
+	meta := cmd.NewMetaOpts(
 		appCtx,
-		tfeClient,
+		cloudService,
 		env,
-		command.WithOrg(*organizationFlag),
-		command.WithUi(Ui),
-		command.WithJson(*json),
+		cmd.WithOrg(*organizationFlag),
+		cmd.WithWriter(writer),
+		// command.WithJson(*json),
 	)
 
 	cliRunner.Commands = map[string]cli.CommandFactory{
 		"upload": func() (cli.Command, error) {
-			return &command.UploadConfigurationCommand{Meta: meta}, nil
+			return &cmd.UploadConfigurationCommand{Meta: meta}, nil
 		},
 		"run create": func() (cli.Command, error) {
-			return &command.CreateRunCommand{Meta: meta}, nil
+			return &cmd.CreateRunCommand{Meta: meta}, nil
 		},
 		"run apply": func() (cli.Command, error) {
-			return &command.ApplyRunCommand{Meta: meta}, nil
+			return &cmd.ApplyRunCommand{Meta: meta}, nil
 		},
 		"run show": func() (cli.Command, error) {
-			return &command.ShowRunCommand{Meta: meta}, nil
+			return &cmd.ShowRunCommand{Meta: meta}, nil
 		},
 		"run discard": func() (cli.Command, error) {
-			return &command.DiscardRunCommand{Meta: meta}, nil
+			return &cmd.DiscardRunCommand{Meta: meta}, nil
 		},
 		"run cancel": func() (cli.Command, error) {
-			return &command.CancelRunCommand{Meta: meta}, nil
+			return &cmd.CancelRunCommand{Meta: meta}, nil
 		},
 		"plan output": func() (cli.Command, error) {
-			return &command.OutputPlanCommand{Meta: meta}, nil
+			return &cmd.OutputPlanCommand{Meta: meta}, nil
 		},
 		"workspace output list": func() (cli.Command, error) {
-			return &command.WorkspaceOutputCommand{Meta: meta}, nil
+			return &cmd.WorkspaceOutputCommand{Meta: meta}, nil
 		},
 	}
 
