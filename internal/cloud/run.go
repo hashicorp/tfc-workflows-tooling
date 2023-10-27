@@ -109,7 +109,7 @@ func (service *runService) RunLink(ctx context.Context, organization string, run
 	}
 	url := service.tfe.BaseURL()
 	link := fmt.Sprintf("%s://%s/app/%s/workspaces/%s/runs/%s", url.Scheme, url.Host, organization, tfWorkspace.Name, run.ID)
-	service.writer.Output(fmt.Sprintf("View Run in Terraform Cloud: %s\n", link))
+	service.writer.Output(fmt.Sprintf("View Run in Terraform Cloud: %s", link))
 
 	return link, nil
 }
@@ -167,7 +167,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 		return nil, err
 	}
 
-	service.writer.Output(fmt.Sprintf("Created Run ID: %s\n", run.ID))
+	service.writer.Output(fmt.Sprintf("Created Run ID: %q", run.ID))
 
 	costEstimateEnabled, policyChecksEnabled := hasCostEstimate(run), hasPolicyChecks(run)
 	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
@@ -187,7 +187,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 			return err
 		}
 
-		service.writer.Output(fmt.Sprintf("Run Status: '%s'\n", run.Status))
+		service.writer.Output(fmt.Sprintf("Run Status: %q", run.Status))
 
 		done, err := isRunComplete(r, desiredStatus, NoopStatus)
 		if err != nil {
@@ -229,7 +229,7 @@ func (service *runService) ApplyRun(ctx context.Context, options ApplyRunOptions
 			return runErr
 		}
 
-		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
+		service.writer.Output(fmt.Sprintf("Run Status: %q", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunApplied}, NoopStatus)
 		if err != nil {
@@ -268,7 +268,7 @@ func (service *runService) DiscardRun(ctx context.Context, options DiscardRunOpt
 			return runErr
 		}
 
-		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
+		service.writer.Output(fmt.Sprintf("Run Status: %q", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunDiscarded}, DiscardNoopStatus)
 		if err != nil {
@@ -316,7 +316,7 @@ func (service *runService) CancelRun(ctx context.Context, options CancelRunOptio
 			return runErr
 		}
 
-		service.writer.Output(fmt.Sprintf("Run Status: %q\n", run.Status))
+		service.writer.Output(fmt.Sprintf("Run Status: %q", run.Status))
 
 		done, err := isRunComplete(run, []tfe.RunStatus{tfe.RunCanceled}, CancelNoopStatus)
 		if err != nil {
@@ -346,7 +346,7 @@ func (service *runService) GetPlanLogs(ctx context.Context, planID string) error
 		return err
 	}
 
-	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Plan Log"))
+	service.writer.Output(fmt.Sprintf("-------------- %s --------------", "Plan Log"))
 	err = outputRunLogLines(logReader, service.writer)
 	if err != nil {
 		return err
@@ -366,7 +366,7 @@ func (service *runService) GetApplyLogs(ctx context.Context, applyID string) err
 		return err
 	}
 
-	service.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Apply Log"))
+	service.writer.Output(fmt.Sprintf("-------------- %s --------------", "Apply Log"))
 	err = outputRunLogLines(logReader, service.writer)
 	if err != nil {
 		return err
@@ -405,7 +405,7 @@ func (s *runService) GetPolicyCheckLogs(ctx context.Context, run *tfe.Run) error
 
 		// only log for first sentinel policy
 		if logStart {
-			s.writer.Output(fmt.Sprintf("\n-------------- %s --------------\n", "Sentinel Policy Checks"))
+			s.writer.Output(fmt.Sprintf("-------------- %s --------------", "Sentinel Policy Checks"))
 			logStart = false
 		}
 
@@ -437,22 +437,22 @@ func (s *runService) LogTaskStage(ctx context.Context, run *tfe.Run, stage tfe.S
 	fmt.Println()
 	for _, task := range taskStages.Items {
 		if task.Stage == stage {
-			s.writer.Output(fmt.Sprintf("-------------- %s --------------\n", labelMap[string(stage)]))
-			s.writer.Output(fmt.Sprintf("TaskStage (%s), Status: '%s', Stage: '%s'\n", task.ID, task.Status, task.Stage))
+			s.writer.Output(fmt.Sprintf("-------------- %s --------------", labelMap[string(stage)]))
+			s.writer.Output(fmt.Sprintf("TaskStage (%s), Status: '%s', Stage: '%s'", task.ID, task.Status, task.Stage))
 			for _, taskResult := range task.TaskResults {
 				taskResult, resErr := s.tfe.TaskResults.Read(ctx, taskResult.ID)
 				if resErr != nil {
 					return fmt.Errorf("error reading results for task results: %s", resErr.Error())
 				}
-				s.writer.Output(fmt.Sprintf("- TaskResult (%s), Name: '%s', Status: '%s', EnforcementLevel: '%s', Message: '%s'\n", taskResult.ID, taskResult.TaskName, taskResult.Status, taskResult.WorkspaceTaskEnforcementLevel, taskResult.Message))
+				s.writer.Output(fmt.Sprintf("- TaskResult (%s), Name: '%s', Status: '%s', EnforcementLevel: '%s', Message: '%s'", taskResult.ID, taskResult.TaskName, taskResult.Status, taskResult.WorkspaceTaskEnforcementLevel, taskResult.Message))
 			}
 			evaluations, pErr := s.tfe.PolicyEvaluations.List(ctx, task.ID, &tfe.PolicyEvaluationListOptions{})
 			if pErr != nil {
 				return fmt.Errorf("error reading results for policy evaluations: %s", pErr.Error())
 			}
 			for _, p := range evaluations.Items {
-				s.writer.Output(fmt.Sprintf("- PolicyEvalutation (%s), Status: '%s', PolicyKind: '%s'\n", p.ID, p.Status, p.PolicyKind))
-				s.writer.Output(fmt.Sprintf("  Passed: (%d), AdvisoryFailed: (%d), MandatoryFailed: (%d), Failed: (%d)\n", p.ResultCount.Passed, p.ResultCount.AdvisoryFailed, p.ResultCount.MandatoryFailed, p.ResultCount.Errored))
+				s.writer.Output(fmt.Sprintf("- PolicyEvalutation (%s), Status: '%s', PolicyKind: '%s'", p.ID, p.Status, p.PolicyKind))
+				s.writer.Output(fmt.Sprintf("  Passed: (%d), AdvisoryFailed: (%d), MandatoryFailed: (%d), Failed: (%d)", p.ResultCount.Passed, p.ResultCount.AdvisoryFailed, p.ResultCount.MandatoryFailed, p.ResultCount.Errored))
 			}
 			fmt.Println()
 		}
@@ -465,9 +465,9 @@ func (s *runService) LogCostEstimation(ctx context.Context, run *tfe.Run) {
 		return
 	}
 
-	s.writer.Output(fmt.Sprintf("\n-------------- CostEstimation (%s) --------------\n", run.CostEstimate.ID))
-	s.writer.Output(fmt.Sprintf("Status: '%s', ErrorMessage: '%s'\n", run.CostEstimate.Status, run.CostEstimate.ErrorMessage))
-	s.writer.Output(fmt.Sprintf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)\n", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost))
+	s.writer.Output(fmt.Sprintf("-------------- CostEstimation (%s) --------------", run.CostEstimate.ID))
+	s.writer.Output(fmt.Sprintf("Status: %q, ErrorMessage: %q", run.CostEstimate.Status, run.CostEstimate.ErrorMessage))
+	s.writer.Output(fmt.Sprintf("PriorMonthlyCost: (%s), ProposedMonthlyCost: (%s), Delta: (%s)", run.CostEstimate.PriorMonthlyCost, run.CostEstimate.ProposedMonthlyCost, run.CostEstimate.DeltaMonthlyCost))
 	fmt.Println()
 }
 
