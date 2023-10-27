@@ -47,7 +47,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 		return configVersion, cvErr
 	}
 
-	service.writer.Output(fmt.Sprintf("Configuration Version has been created: %s\n", configVersion.ID))
+	service.writer.Output(fmt.Sprintf("Configuration Version has been created: %s", configVersion.ID))
 
 	err := service.ConfigurationVersions.Upload(ctx, configVersion.UploadURL, options.ConfigurationDirectory)
 
@@ -64,7 +64,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 		if err != nil {
 			return err
 		}
-		service.writer.Output(fmt.Sprintf("Upload Status: '%s'\n", cv.Status))
+		service.writer.Output(fmt.Sprintf("Upload Status: %q", cv.Status))
 		if cv.Status == tfe.ConfigurationUploaded || cv.Status == tfe.ConfigurationErrored {
 			// update configVersion to latest results
 			configVersion = cv
