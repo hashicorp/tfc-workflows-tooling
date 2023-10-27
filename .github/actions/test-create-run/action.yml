@@ -1,6 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+# INTERNAL USE ONLY
+# Refer to https://github.com/hashicorp/tfc-workflows-github for available actions
 name: 'Test Create Run'
 description: "Performs a new plan run in Terraform Cloud, using a configuration version and the workspace’s current variables"
 
