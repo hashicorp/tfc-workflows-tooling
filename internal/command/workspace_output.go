@@ -69,8 +69,9 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 	}
 
 	c.addOutputWithOpts("outputs", workspaceOutputs, &outputOpts{
-		stdOut:    true,
-		multiLine: true,
+		stdOut:      true,
+		multiLine:   true,
+		platformOut: true,
 	})
 	c.addOutput("status", string(Success))
 	c.Ui.Output(c.closeOutput())

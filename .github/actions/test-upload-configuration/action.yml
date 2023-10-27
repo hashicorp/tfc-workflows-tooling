@@ -1,6 +1,8 @@
 # Copyright (c) HashiCorp, Inc.
 # SPDX-License-Identifier: MPL-2.0
 
+# INTERNAL USE ONLY
+# Refer to https://github.com/hashicorp/tfc-workflows-github for available actions
 name: "Test Upload Configuration"
 description: "Creates and uploads configuration files for a given workspace"
 
