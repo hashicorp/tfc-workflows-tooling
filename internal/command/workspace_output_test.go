@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/mitchellh/cli"
 )
 
@@ -48,7 +49,8 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 		},
 	}
 
-	meta := NewMetaOpts(context.Background(), cloudMockService, &environment.CI{}, WithUi(ui))
+	writer := writer.NewWriter(ui, false)
+	meta := NewMetaOpts(context.Background(), cloudMockService, &environment.CI{}, WithWriter(writer))
 
 	return ui, &WorkspaceOutputCommand{Meta: meta}
 }

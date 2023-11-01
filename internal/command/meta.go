@@ -12,7 +12,6 @@ import (
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
-	"github.com/mitchellh/cli"
 )
 
 type Status string
@@ -23,6 +22,13 @@ const (
 	Timeout Status = "Timeout"
 	Noop    Status = "Noop"
 )
+
+type Writer interface {
+	Output(msg string)
+	Error(msg string)
+	OutputResult(msg string)
+	ErrorResult(msg string)
+}
 
 type Meta struct {
 	// Organization for Terraform Cloud installation
@@ -35,9 +41,9 @@ type Meta struct {
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
-	// cli ui settings
-	ui cli.Ui
-	// optional flag
+	//
+	writer Writer
+	// duplicate flag to prevent flags package error
 	json bool
 }
 
@@ -46,7 +52,7 @@ func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
 
-	// flag parsed earlier
+	// flag parsed earlier and passed to the writer
 	f.BoolVar(&c.json, "json", false, "Suppresses all logs and instead returns output value in JSON format")
 
 	return f
@@ -122,9 +128,9 @@ func WithOrg(org string) func(*Meta) {
 	}
 }
 
-func WithUi(ui cli.Ui) func(*Meta) {
+func WithWriter(w Writer) func(*Meta) {
 	return func(m *Meta) {
-		m.ui = ui
+		m.writer = w
 	}
 }
 

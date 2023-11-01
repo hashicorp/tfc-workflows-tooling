@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/mitchellh/cli"
 )
 
@@ -29,7 +30,9 @@ func meta(cv *tfe.ConfigurationVersion) *Meta {
 		},
 	}
 	env := &environment.CI{}
-	meta := NewMetaOpts(ctx, cloudService, env, WithUi(cli.NewMockUi()))
+	ui := cli.NewMockUi()
+	writer := writer.NewWriter(ui, false)
+	meta := NewMetaOpts(ctx, cloudService, env, WithWriter(writer))
 	return meta
 }
 

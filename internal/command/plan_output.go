@@ -29,7 +29,7 @@ func (c *OutputPlanCommand) Run(args []string) int {
 	if err := flags.Parse(args); err != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
 
@@ -37,14 +37,14 @@ func (c *OutputPlanCommand) Run(args []string) int {
 	if pErr != nil {
 		c.addOutput("status", string(Error))
 		c.addPlanDetails(plan)
-		c.ui.Error(fmt.Sprintf("error retrieving plan data %s\n", pErr.Error()))
-		c.ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("error retrieving plan data %s\n", pErr.Error()))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addPlanDetails(plan)
-	c.ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 
