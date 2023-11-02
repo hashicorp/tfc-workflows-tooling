@@ -1,6 +1,6 @@
 # Adopting TFCI
 
-If you have any questions feel free to open an [issue](https://github.com/hashicorp/tfc-workflows-tooling/issues).
+If you have any questions or need clarification feel free to open an [issue](https://github.com/hashicorp/tfc-workflows-tooling/issues).
 
 ## Setup
 
@@ -32,10 +32,55 @@ View our [Usage documentation](./USAGE.md#generating-a-binary-from-source) to le
 
 ## Workflow
 
-### Terraform CLI vs. Terraform Cloud API
+### [Terraform Cloud CLI](https://developer.hashicorp.com/terraform/cloud-docs/run/cli) vs. [Terraform Cloud API](https://developer.hashicorp.com/terraform/cloud-docs/run/api)
+
+| Workflow   |    Terraform CLI (Cloud)                   |  TFCI/Terraform Cloud API                      |
+|------------|-------------------------------------|------------------------------------------------|
+| Plan       |  `terraform plan`                   |  commands: `upload`, `run create`              |
+| Apply      |  `terraform apply -auto-approve`    |  commands: `upload`,  `run create`, `run apply`|
+
+#### Terraform Plan
+
+Terraform CLI you can create a new plan with one command that will upload Terraform configuration and execute a new run in Terraform Cloud.
+
+Alternatively with the TFCI/API driven runs, these actions are broken up into multiple parts:
+- Upload terraform configuration as a Configuration Version
+- Create a new run using that Configuration Version. If the run was not specified as `plan-only`, then it could be optionally approved or applied.
+
+#### Terraform Apply
+
+Terraform CLI you can initiate an apply run with, `terraform apply` that will also upload the configuration and start a new Terraform Cloud run that will plan and apply.
 
 ### Prescribed Workflows
 
+As part of the initiate for tfc-workflows-tooling and tfci, we prescribe the following recommended workflows:
+* Speculative Run
+* Plan/Apply Run
+
 #### Speculative Run
 
+*This is a plan-only run. It is generally used on a Pull Request/Merge Request.*
+
+[Example speculative run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/terraform-cloud.speculative-run.workflow.yml)
+
+Segments:
+1. Pull request/Merge request is opened and triggers the workflow.
+1. Pipeline runner checkouts the branch with the included changes
+1. Upload Configuration, optionally mark it as `speculative` so the same configuration version cannot be applied.
+1. Create a new Terraform Cloud Run, specifying the run as `plan-only`. This creates a speculative run that does not lock the workspace.
+1. Results of the run and plan is presented to the user, such as a comment on PR/Merge request.
+
+
 #### Plan/Apply Run
+
+*This is a run that is both planned and applied. It is generally recommended on merges.*
+
+[Example apply-run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/terraform-cloud.apply-run.workflow.yml)
+
+Segments:
+1. Code is merged into the default main branch or branch used for a separate environment such as "staging".
+1. Pipeline runner checksout the merged code.
+1. Configuration is uploaded to Terraform Cloud.
+1. Create a new run in Terraform Cloud with the previously uploaded Configuration Version.
+1. If the plan was successful, confirm the run by running `run apply --run={previous run id}`, that will then apply the changes
+1. Optionally output the apply results as a summary.
