@@ -9,6 +9,7 @@
 * `run discard`: Skips any remaining work on runs that are paused waiting for confirmation or priority.
 * `run cancel`: Interrupts a run that is currently planning or applying.
 * `plan output`: Returns the plan details for the provided Plan ID.
+* `workspace output list`: Returns a list of workspace outputs.
 
 ## Pulling Image from Dockerhub
 
@@ -20,39 +21,103 @@ docker pull hashicorp/tfci:latest
 Pulling a specific version
 
 ```sh
-docker pull hashicorp/tfci:v1.0.0
+docker pull hashicorp/tfci:v1.0.4
 ```
 
-Then run the container.
+## Building the Image Locally
 
-You are able to pass exported environment variables `TF_HOSTNAME` (if using Terraform Enterprise), `TF_API_TOKEN`, `TF_CLOUD_ORGANIZATION` from the parent process.
-
-```sh
-docker run -it --rm \
-  -e "TF_HOSTNAME" \
-  -e "TF_API_TOKEN" \
-  -e "TF_CLOUD_ORGANIZATION" \
-  hashicorp/tfci:latest \
-  tfci run show --help
-```
-
-Or pass these variables as global flags to the tfci command.
-
-```sh
-docker run -it --rm \
-  hashicorp/tfci:latest \
-  tfci \
-  --hostname="..." \
-  --organization="..." \
-  --token="..." \
-  run show --help
-```
-
-## Building Image Locally
+*Requires cloning the repository and having Docker installed on your host machine*
 
 ```
 docker build . -t tfci:tagname
 ```
+
+## Running the TFCI Container (Environment Variables, WORKDIR, Bind mount)
+
+### Environment Variables `-e` or `-env`
+
+Tfci requires that the following values be passed in as environment variables from the host machine **or** injected using the global command --flags
+- `TF_HOSTNAME` (for TFE)
+- `TF_API_TOKEN`
+- `TF_CLOUD_ORGANIZATION`
+
+#### Available Environment Variables
+
+| ENV Var Name      | Default            | Flag            |  Description                                                                                                     |
+| ----------------- |--------------------|-----------------| ---------------------------------------------------------------------------------------------------------------- |
+| `TF_HOSTNAME`     | `app.terraform.io` |  `--hostname`     | The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to Terraform Cloud. |
+| `TF_API_TOKEN`    | `n/a`              |  `--token`        | The token used to authenticate with Terraform Cloud. [API Token Docs](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/api-tokens)                                                           |
+| `TF_ORGANIZATION` | `n/a`              |  `--organization` | The name of the organization in Terraform Cloud.                                                                 |
+| `TF_MAX_TIMEOUT`  | `1h`               |  N/A            | Max wait timeout to wait for actions to reach desired or errored state. ex: `1h30`, `30m`                                         |
+| `TF_VAR_*`        | `n/a`              |  N/A            | Only applicable for create-run action. Note: strings must be escaped. ex: `TF_VAR_image_id="\"ami-abc123\""`. All values must be expressed as an HCL literal in the same syntax you would use when writing Terraform code. [Create Run API Docs](https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run)                                 |
+| `TF_LOG`          | `OFF`              |  N/A            | Debugging log level options: `OFF`, `ERROR`, `INFO`, `DEBUG`                                                     |
+
+
+**Docker environment variable example**
+```sh
+docker run -it --rm \
+-e "TF_HOSTNAME" \
+-e "TF_API_TOKEN" \
+-e "TF_CLOUD_ORGANIZATION" \
+hashicorp/tfci:latest \
+tfci run show --help
+```
+
+**Or pass these values as global flags to tfci**
+
+```sh
+docker run -it --rm \
+hashicorp/tfci:latest \
+tfci \
+--hostname="..." \
+--organization="..." \
+--token="..." \
+run show --help
+```
+
+### Workdir and Bind mount
+
+Since tfci is executing within a Docker container, the `upload` command needs to access your repository's configuration directory declared with the `--directory` flag on the host machine.
+
+In order to configure this, you will need to set both a Working directory for the container as well as a bind mount from the host machine.
+
+The `WORKDIR` or `--workdir` in the container can be any path, even one that does not exist within container. Example `--workdir "/tfci/workspace"`, docker will create the filesystem path in the container for you.
+
+Use the `--volumes` or `-v` flag, to create a bind mount between the container working directory and filesystem path on the host machine containing the terraform configuration to upload
+
+#### Example
+
+Say your project lives withing the following path on the host, `/path/to/your/configuration`.
+```
+├── terraform/
+|   └── main.tf
+└── README.md
+```
+
+When running the tfci container, create a bind mount between your Terraform configuration project and the container working directory like the following.
+
+```bash
+docker run -it --rm \
+-e "TF_HOSTNAME" \
+-e "TF_API_TOKEN" \
+-e "TF_CLOUD_ORGANIZATION" \
+-e "TF_LOG" \
+--workdir "/tfci/workspace" \
+-v "/path/to/your/configuration":"/tfci/workspace" \
+hashicorp/tfci:latest \
+tfci upload --workspace=api-workspace --directory=./terraform
+```
+Since the bind mount is between the host project root directory and container working directory, you can pass the the relative path to the configuration you wish to upload to Terraform Cloud.
+
+### Piping Json Output
+
+While executing tfci within a Docker container, avoid the Docker `-it` flag, which allocates a pseudo-TTY connected to the container's stdin.
+
+This can break when piping the stdout from tfci to other programs such as `jq`.
+
+## Troubleshooting
+
+Recommend to set the environment variable: `TF_LOG` to `DEBUG` level to inspect additional diagnostics or error information.
 
 ## Local Development
 
