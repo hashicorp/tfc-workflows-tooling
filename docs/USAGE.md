@@ -189,3 +189,27 @@ Push the custom container to your container registry like so
 ```sh
 docker push registry.example.com/namespace/tfci-custom
 ```
+
+## Generating a binary from source
+
+In scenarios where Docker is not available or feasible, you can build a binary directly from the source code.
+
+Prerequisites:
+* git installed
+* Golang installed
+
+Steps:
+1. *[Clone the repository](https://github.com/hashicorp/tfc-workflows-tooling)*
+1. Checkout from an available [release](https://github.com/hashicorp/tfc-workflows-tooling/releases).
+1. Go cli to build a binary artifact `go build {flags}`
+
+Example:
+```bash
+go build \
+-ldflags "-X 'github.com/hashicorp/tfci/version.Version=$VERSION' \
+-s \
+-w \
+-extldflags '-static'" \
+-o /tfci \
+.
+```

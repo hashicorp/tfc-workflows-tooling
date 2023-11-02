@@ -28,27 +28,7 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 
 ### Building a binary from source code
 
-In scenarios where Docker is not available or feasible, you can build a binary directly from the source code.
-
-Prerequisites:
-* git installed
-* Golang installed
-
-Steps:
-1. *[Clone the repository](https://github.com/hashicorp/tfc-workflows-tooling)*
-1. Checkout from an available [release](https://github.com/hashicorp/tfc-workflows-tooling/releases).
-1. Go cli to build a binary artifact `go build {flags}`
-
-Example:
-```bash
-go build \
--ldflags "-X 'github.com/hashicorp/tfci/version.Version=$VERSION' \
--s \
--w \
--extldflags '-static'" \
--o /tfci \
-.
-```
+View our [Usage documentation](./USAGE.md#generating-a-binary-from-source) to learn more.
 
 ## Workflow
 
