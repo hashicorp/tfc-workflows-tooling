@@ -28,17 +28,24 @@ func (c *CancelRunCommand) flags() *flag.FlagSet {
 
 	return f
 }
-
-func (c *CancelRunCommand) Run(args []string) int {
+func (c *CancelRunCommand) SetupCmd(args []string) error {
 	flags := c.flags()
 	if err := flags.Parse(args); err != nil {
 		c.emitFlagOptions()
 		c.addOutput("status", string(Error))
 		c.closeOutput()
 		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		return err
+	}
+
+	c.emitFlagOptions()
+	return nil
+}
+
+func (c *CancelRunCommand) Run(args []string) int {
+	if err := c.SetupCmd(args); err != nil {
 		return 1
 	}
-	c.emitFlagOptions()
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))

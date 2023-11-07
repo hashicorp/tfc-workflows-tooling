@@ -25,7 +25,7 @@ func (c *ShowRunCommand) flags() *flag.FlagSet {
 	return f
 }
 
-func (c *ShowRunCommand) SetupCmd(args []string) (err error) {
+func (c *ShowRunCommand) SetupCmd(args []string) error {
 	flags := c.flags()
 	if err := flags.Parse(args); err != nil {
 		c.emitFlagOptions()
@@ -36,7 +36,7 @@ func (c *ShowRunCommand) SetupCmd(args []string) (err error) {
 	}
 
 	c.emitFlagOptions()
-	return
+	return nil
 }
 
 func (c *ShowRunCommand) Run(args []string) int {

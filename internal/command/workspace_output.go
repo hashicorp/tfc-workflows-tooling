@@ -27,9 +27,9 @@ func (c *WorkspaceOutputCommand) flags() *flag.FlagSet {
 	return f
 }
 
-func (c *WorkspaceOutputCommand) SetupCmd(args []string) (err error) {
+func (c *WorkspaceOutputCommand) SetupCmd(args []string) error {
 	flags := c.flags()
-	if err = flags.Parse(args); err != nil {
+	if err := flags.Parse(args); err != nil {
 		c.emitFlagOptions()
 		c.addOutput("status", string(Error))
 		c.closeOutput()
@@ -37,7 +37,7 @@ func (c *WorkspaceOutputCommand) SetupCmd(args []string) (err error) {
 		return err
 	}
 	c.emitFlagOptions()
-	return
+	return nil
 }
 
 func (c *WorkspaceOutputCommand) Run(args []string) int {
