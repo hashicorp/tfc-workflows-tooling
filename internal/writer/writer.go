@@ -14,11 +14,14 @@ type Writer struct {
 	ui   cli.Ui
 }
 
-func NewWriter(ui cli.Ui, jsonFlag bool) *Writer {
+func NewWriter(ui cli.Ui) *Writer {
 	return &Writer{
-		json: jsonFlag,
-		ui:   ui,
+		ui: ui,
 	}
+}
+
+func (w *Writer) SetOptions(jsonFlag bool) {
+	w.json = jsonFlag
 }
 
 // In-Progress diagnostic information

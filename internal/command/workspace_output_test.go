@@ -49,7 +49,7 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 		},
 	}
 
-	writer := writer.NewWriter(ui, false)
+	writer := writer.NewWriter(ui)
 	meta := NewMetaOpts(context.Background(), cloudMockService, &environment.CI{}, WithWriter(writer))
 
 	return ui, &WorkspaceOutputCommand{Meta: meta}

@@ -31,7 +31,7 @@ func meta(cv *tfe.ConfigurationVersion) *Meta {
 	}
 	env := &environment.CI{}
 	ui := cli.NewMockUi()
-	writer := writer.NewWriter(ui, false)
+	writer := writer.NewWriter(ui)
 	meta := NewMetaOpts(ctx, cloudService, env, WithWriter(writer))
 	return meta
 }

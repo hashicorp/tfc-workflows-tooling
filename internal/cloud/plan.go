@@ -15,9 +15,7 @@ type PlanService interface {
 }
 
 type planService struct {
-	tfe *tfe.Client
-
-	writer Writer
+	*cloudMeta
 }
 
 func (service *planService) GetPlan(ctx context.Context, planID string) (*tfe.Plan, error) {
@@ -29,6 +27,6 @@ func (service *planService) GetPlan(ctx context.Context, planID string) (*tfe.Pl
 	return data, nil
 }
 
-func NewPlanService(tfe *tfe.Client, w Writer) *planService {
-	return &planService{tfe, w}
+func NewPlanService(meta *cloudMeta) *planService {
+	return &planService{meta}
 }

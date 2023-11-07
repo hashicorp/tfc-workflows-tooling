@@ -11,6 +11,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"github.com/hashicorp/tfci/internal/writer"
+	"github.com/mitchellh/cli"
 )
 
 func TestWorkspaceService_ReadStateOutputs(t *testing.T) {
@@ -72,13 +74,15 @@ func TestWorkspaceService_ReadStateOutputs(t *testing.T) {
 				nil,
 			)
 
-			client := &workspaceService{
+			meta := &cloudMeta{
 				tfe: &tfe.Client{
 					Workspaces:          mWorkspace,
 					StateVersions:       mockStateVersion,
 					StateVersionOutputs: mockStateVersionOutputList,
 				},
+				writer: writer.NewWriter(cli.NewMockUi()),
 			}
+			client := NewWorkspaceService(meta)
 
 			result, resultErr := client.ReadStateOutputs(tc.ctx, tc.orgName, tc.workspaceName)
 
@@ -141,13 +145,15 @@ func TestWorkspaceService_ReadStateOutputs_Retry(t *testing.T) {
 			nil,
 		)
 
-		client := &workspaceService{
+		meta := &cloudMeta{
 			tfe: &tfe.Client{
 				Workspaces:          mWorkspace,
 				StateVersions:       mockStateVersion,
 				StateVersionOutputs: mockStateVersionOutputList,
 			},
+			writer: writer.NewWriter(cli.NewMockUi()),
 		}
+		client := NewWorkspaceService(meta)
 
 		// invoke workspace service call
 		client.ReadStateOutputs(ctx, orgName, workspaceName)

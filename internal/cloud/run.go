@@ -95,9 +95,7 @@ type RunService interface {
 }
 
 type runService struct {
-	tfe *tfe.Client
-
-	writer Writer
+	*cloudMeta
 }
 
 func (service *runService) RunLink(ctx context.Context, organization string, run *tfe.Run) (string, error) {
@@ -495,8 +493,8 @@ func outputRunLogLines(logs io.Reader, writer Writer) error {
 	return nil
 }
 
-func NewRunService(tfe *tfe.Client, w Writer) RunService {
-	return &runService{tfe, w}
+func NewRunService(meta *cloudMeta) RunService {
+	return &runService{meta}
 }
 
 func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEnabled bool) []tfe.RunStatus {

@@ -34,11 +34,13 @@ func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
 func (c *UploadConfigurationCommand) Run(args []string) int {
 	flags := c.flags()
 	if err := flags.Parse(args); err != nil {
+		c.emitFlagOptions()
 		c.addOutput("status", string(Error))
 		c.closeOutput()
 		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
 		return 1
 	}
+	c.emitFlagOptions()
 
 	log.Printf("[DEBUG] uploading configuration with, workspace: %s, directory: %s, speculative: %t", c.Workspace, c.Directory, c.Speculative)
 

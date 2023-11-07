@@ -132,12 +132,13 @@ func TestUpload(t *testing.T) {
 				mockCv.EXPECT().Read(tt.args.ctx, tt.cv.ID).Return(tt.cv, tt.cvCreateErr)
 			}
 
-			client := &configVersionService{
-				Client: tt.fields.Client,
+			m := &cloudMeta{
+				tfe:    tt.fields.Client,
 				writer: writer,
 			}
-			client.Workspaces = mockWs
-			client.ConfigurationVersions = mockCv
+			m.tfe.Workspaces = mockWs
+			m.tfe.ConfigurationVersions = mockCv
+			client := NewConfigVersionService(m)
 
 			got, err := client.UploadConfig(tt.args.ctx, tt.args.options)
 			if (err != nil) != tt.wantErr {

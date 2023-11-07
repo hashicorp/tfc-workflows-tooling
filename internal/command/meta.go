@@ -24,6 +24,7 @@ const (
 )
 
 type Writer interface {
+	SetOptions(json bool)
 	Output(msg string)
 	Error(msg string)
 	OutputResult(msg string)
@@ -52,10 +53,16 @@ func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
 
-	// flag parsed earlier and passed to the writer
 	f.BoolVar(&c.json, "json", false, "Suppresses all logs and instead returns output value in JSON format")
 
 	return f
+}
+
+func (c *Meta) emitFlagOptions() {
+	// inject json option for command writer
+	c.writer.SetOptions(c.json)
+	// inject json flag option for cloud writer
+	c.cloud.InjectJson(c.json)
 }
 
 func (c *Meta) resolveStatus(err error) Status {
