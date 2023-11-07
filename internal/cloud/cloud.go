@@ -8,16 +8,16 @@ import (
 )
 
 type Writer interface {
-	SetOptions(json bool)
+	UseJson(json bool)
 	Output(msg string)
 	Error(msg string)
 }
 
 type defaultWriter struct{}
 
-func (d *defaultWriter) SetOptions(json bool) {}
-func (d *defaultWriter) Output(msg string)    {}
-func (d *defaultWriter) Error(msg string)     {}
+func (d *defaultWriter) UseJson(json bool) {}
+func (d *defaultWriter) Output(msg string) {}
+func (d *defaultWriter) Error(msg string)  {}
 
 // compile time check
 var _ Writer = (*defaultWriter)(nil)
@@ -32,8 +32,7 @@ type Cloud struct {
 }
 
 func (c *Cloud) UseJson(json bool) {
-	c.writer.SetOptions(json)
-	c.cloudMeta.writer.SetOptions(json)
+	c.writer.UseJson(json)
 }
 
 // shared struct to embed

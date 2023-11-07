@@ -20,7 +20,7 @@ func NewWriter(ui cli.Ui) *Writer {
 	}
 }
 
-func (w *Writer) SetOptions(jsonFlag bool) {
+func (w *Writer) UseJson(jsonFlag bool) {
 	w.json = jsonFlag
 }
 

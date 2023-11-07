@@ -25,7 +25,7 @@ const (
 )
 
 type Writer interface {
-	SetOptions(json bool)
+	UseJson(json bool)
 	Output(msg string)
 	Error(msg string)
 	OutputResult(msg string)
@@ -73,9 +73,9 @@ func (c *Meta) flagSet(name string) *flag.FlagSet {
 }
 
 func (c *Meta) emitFlagOptions() {
-	// inject json option for command writer
-	c.writer.SetOptions(c.json)
-	// inject json flag option for cloud writer
+	// configure json option for command writer
+	c.writer.UseJson(c.json)
+	// configure json option for cloud writer
 	c.cloud.UseJson(c.json)
 }
 
