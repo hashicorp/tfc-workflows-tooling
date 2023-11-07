@@ -20,7 +20,6 @@ var (
 	hostnameFlag     = flag.String("hostname", "", "The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to Terraform Cloud (app.terraform.io)")
 	tokenFlag        = flag.String("token", "", "The token used to authenticate with Terraform Cloud. Defaults to reading `TF_API_TOKEN` environment variable")
 	organizationFlag = flag.String("organization", "", "Terraform Cloud Organization Name")
-	json             = flag.Bool("json", false, "Suppresses all logs and instead returns output value in JSON format")
 )
 
 func newCliRunner() (*cli.CLI, error) {
@@ -37,16 +36,7 @@ func newCliRunner() (*cli.CLI, error) {
 	cliRunner := cli.NewCLI("tfc", version.GetVersion())
 	cliRunner.Args = newArgs
 
-	// global check if --json flag has been passed
-	// otherwise can't determine flag until subcommand Run()s
-	for _, arg := range newArgs {
-		if arg == "-json" || arg == "--json" {
-			*json = true
-			continue
-		}
-	}
-
-	writer := writer.NewWriter(Ui, *json)
+	writer := writer.NewWriter(Ui)
 	orgEnv := os.Getenv("TF_CLOUD_ORGANIZATION")
 
 	if *organizationFlag == "" && orgEnv != "" {

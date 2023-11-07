@@ -170,7 +170,7 @@ func TestRunService_CreateRun(t *testing.T) {
 			// Verify retry order behavior
 			gomock.InOrder(goMockCalls...)
 
-			client := &runService{
+			m := &cloudMeta{
 				tfe: &tfe.Client{
 					Workspaces:            workspaceMock,
 					ConfigurationVersions: configVersionMock,
@@ -178,6 +178,7 @@ func TestRunService_CreateRun(t *testing.T) {
 				},
 				writer: &defaultWriter{},
 			}
+			client := NewRunService(m)
 
 			_, err := client.CreateRun(tc.ctx, CreateRunOptions{
 				Organization:           tc.orgName,

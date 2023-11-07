@@ -14,15 +14,19 @@ type Writer struct {
 	ui   cli.Ui
 }
 
-func NewWriter(ui cli.Ui, jsonFlag bool) *Writer {
+func NewWriter(ui cli.Ui) *Writer {
 	return &Writer{
-		json: jsonFlag,
-		ui:   ui,
+		ui: ui,
 	}
 }
 
+func (w *Writer) UseJson(json bool) {
+	log.Printf("[DEBUG] Writer using json: %t", json)
+	w.json = json
+}
+
 // In-Progress diagnostic information
-// if *json is set to true, will send log fo to stderr
+// if *json is set to true, will send log formatting to stderr
 func (w *Writer) Output(message string) {
 	if w.json {
 		log.Printf("[INFO] %s", message)

@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -24,6 +25,7 @@ const (
 )
 
 type Writer interface {
+	UseJson(json bool)
 	Output(msg string)
 	Error(msg string)
 	OutputResult(msg string)
@@ -47,15 +49,34 @@ type Meta struct {
 	json bool
 }
 
+func (c *Meta) setupCmd(args []string, flags *flag.FlagSet) error {
+	if err := flags.Parse(args); err != nil {
+		c.emitFlagOptions()
+		c.addOutput("status", string(Error))
+		c.closeOutput()
+		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		return err
+	}
+
+	c.emitFlagOptions()
+	return nil
+}
+
 func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f := flag.NewFlagSet(name, flag.ContinueOnError)
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
 
-	// flag parsed earlier and passed to the writer
 	f.BoolVar(&c.json, "json", false, "Suppresses all logs and instead returns output value in JSON format")
 
 	return f
+}
+
+func (c *Meta) emitFlagOptions() {
+	// configure json option for command writer
+	c.writer.UseJson(c.json)
+	// configure json option for cloud writer
+	c.cloud.UseJson(c.json)
 }
 
 func (c *Meta) resolveStatus(err error) Status {

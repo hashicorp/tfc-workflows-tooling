@@ -24,14 +24,13 @@ func (s *SuccessfulUploader) UploadConfig(_ context.Context, _ cloud.UploadOptio
 
 func meta(cv *tfe.ConfigurationVersion) *Meta {
 	ctx := context.Background()
-	cloudService := &cloud.Cloud{
-		ConfigVersionService: &SuccessfulUploader{
-			configurationVersion: cv,
-		},
+	ui := cli.NewMockUi()
+	writer := writer.NewWriter(ui)
+	cloudService := cloud.NewCloud(&tfe.Client{}, writer)
+	cloudService.ConfigVersionService = &SuccessfulUploader{
+		configurationVersion: cv,
 	}
 	env := &environment.CI{}
-	ui := cli.NewMockUi()
-	writer := writer.NewWriter(ui, false)
 	meta := NewMetaOpts(ctx, cloudService, env, WithWriter(writer))
 	return meta
 }
