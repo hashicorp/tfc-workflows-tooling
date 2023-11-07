@@ -43,9 +43,9 @@ type Meta struct {
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
-	//
+	// writer interface to handle result and diagnostic information
 	writer Writer
-	// duplicate flag to prevent flags package error
+	// flag to prevent non-json messages to stdout
 	json bool
 }
 
