@@ -62,7 +62,7 @@ func (c *Meta) emitFlagOptions() {
 	// inject json option for command writer
 	c.writer.SetOptions(c.json)
 	// inject json flag option for cloud writer
-	c.cloud.InjectJson(c.json)
+	c.cloud.UseJson(c.json)
 }
 
 func (c *Meta) resolveStatus(err error) Status {

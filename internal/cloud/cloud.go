@@ -31,7 +31,7 @@ type Cloud struct {
 	WorkspaceService
 }
 
-func (c *Cloud) InjectJson(json bool) {
+func (c *Cloud) UseJson(json bool) {
 	c.writer.SetOptions(json)
 	c.cloudMeta.writer.SetOptions(json)
 }
