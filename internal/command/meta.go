@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -46,6 +47,19 @@ type Meta struct {
 	writer Writer
 	// duplicate flag to prevent flags package error
 	json bool
+}
+
+func (c *Meta) setupCmd(args []string, flags *flag.FlagSet) error {
+	if err := flags.Parse(args); err != nil {
+		c.emitFlagOptions()
+		c.addOutput("status", string(Error))
+		c.closeOutput()
+		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		return err
+	}
+
+	c.emitFlagOptions()
+	return nil
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
