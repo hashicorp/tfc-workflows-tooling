@@ -77,7 +77,7 @@ run show --help
 
 ### Workdir and Bind mount
 
-Since tfci is executing within a Docker container, the `upload` command needs to access your repository's configuration directory declared with the `--directory` flag on the host machine.
+Since Tfci is executing within a Docker container, the `upload` command needs to access your repository's configuration directory declared with the `--directory` flag on the host machine.
 
 In order to configure this, you will need to set both a Working directory for the container as well as a bind mount from the host machine.
 
@@ -111,7 +111,7 @@ Since the bind mount is between the host project root directory and container wo
 
 ### Piping Json Output
 
-While executing tfci within a Docker container, avoid the Docker `-it` flag, which allocates a pseudo-TTY connected to the container's stdin.
+While executing Tfci within a Docker container, avoid the Docker `-it` flag, which allocates a pseudo-TTY connected to the container's stdin.
 
 This can break when piping the stdout from tfci to other programs such as `jq`.
 
@@ -195,7 +195,7 @@ docker push registry.example.com/namespace/tfci-custom
 In scenarios where Docker is not available or feasible, you can build a binary directly from the source code.
 
 Prerequisites:
-* git installed
+* Git installed
 * Golang installed
 
 Steps:

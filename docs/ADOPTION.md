@@ -22,11 +22,11 @@ View our [Usage documentation](./USAGE.md) to learn more our available commands,
 
 If Docker is not available, view our [Usage documentation](./USAGE.md#generating-a-binary-from-source) to learn more.
 
-### How GitHub Actions uses tfci
+### How GitHub Actions uses Tfci
 
-[View all](https://github.com/hashicorp/tfc-workflows-github/tree/main/actions) available GitHub Actions that are built on top of tfci.
+[View all](https://github.com/hashicorp/tfc-workflows-github/tree/main/actions) available GitHub Actions that are built on top of Tfci.
 
-### [How GitLab Pipelines uses tfci](https://github.com/hashicorp/tfc-workflows-gitlab)
+### [How GitLab Pipelines uses Tfci](https://github.com/hashicorp/tfc-workflows-gitlab)
 
 View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitlab/blob/main/Base.gitlab-ci.yml)
 
@@ -43,7 +43,7 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 
 Terraform Cloud CLI can execute a new plan with one command that will upload Terraform configuration and execute a new run in Terraform Cloud.
 
-With tfci and Terraform Cloud API driven runs, these actions are broken up into multiple parts:
+With Tfci and Terraform Cloud API driven runs, these actions are broken up into multiple parts:
 - Upload terraform configuration as a ConfigurationVersion
 - Create a new run using that Configuration Version. If the run was not specified as `plan-only`, then it could be optionally approved or applied.
 
@@ -51,14 +51,14 @@ With tfci and Terraform Cloud API driven runs, these actions are broken up into 
 
 Terraform Cloud CLI can execute an apply run with, `terraform apply` that will also upload the configuration and start a new Terraform Cloud run that will plan and apply.
 
-With tfci and Terraform Cloud API driven runs:
+With Tfci and Terraform Cloud API driven runs:
 - Upload terraform configuration as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
 
 ### Prescribed Workflows
 
-As part of the initiative for this project and tfci, we prescribe the following recommended workflows:
+As part of the initiative for this project and Tfci, we prescribe the following recommended workflows:
 * Speculative Run
 * Plan/Apply Run
 
