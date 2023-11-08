@@ -4,6 +4,14 @@
 
 ## Bug Fixes
 
+# v1.1.1
+
+## Enhancements
+* Adds support for a `--json` flag option for across all commands by @mjyocca [#58](https://github.com/hashicorp/tfc-workflows-tooling/pull/58)
+
+## Bug Fixes
+* Fixes issue with `workspace output list` not including output json data to platform specific output by @mjyocca [#60](https://github.com/hashicorp/tfc-workflows-tooling/pull/60)
+
 # v1.1.0
 
 ## Enhancements
