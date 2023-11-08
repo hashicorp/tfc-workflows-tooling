@@ -9,9 +9,10 @@ import (
 	"os"
 
 	"github.com/hashicorp/tfci/internal/cloud"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/hashicorp/tfci/version"
 
-	"github.com/hashicorp/tfci/internal/command"
+	cmd "github.com/hashicorp/tfci/internal/command"
 	"github.com/mitchellh/cli"
 )
 
@@ -35,6 +36,7 @@ func newCliRunner() (*cli.CLI, error) {
 	cliRunner := cli.NewCLI("tfc", version.GetVersion())
 	cliRunner.Args = newArgs
 
+	writer := writer.NewWriter(Ui)
 	orgEnv := os.Getenv("TF_CLOUD_ORGANIZATION")
 
 	if *organizationFlag == "" && orgEnv != "" {
@@ -48,38 +50,40 @@ func newCliRunner() (*cli.CLI, error) {
 		return nil, err
 	}
 
-	c := cloud.NewCloud(tfe)
+	cloudService := cloud.NewCloud(tfe, writer)
 
-	meta := command.NewMeta(c)
-	meta.Ui = Ui
-	meta.Organization = *organizationFlag
-	meta.Context = appCtx
-	meta.Env = env
+	meta := cmd.NewMetaOpts(
+		appCtx,
+		cloudService,
+		env,
+		cmd.WithOrg(*organizationFlag),
+		cmd.WithWriter(writer),
+	)
 
 	cliRunner.Commands = map[string]cli.CommandFactory{
 		"upload": func() (cli.Command, error) {
-			return &command.UploadConfigurationCommand{Meta: meta}, nil
+			return &cmd.UploadConfigurationCommand{Meta: meta}, nil
 		},
 		"run create": func() (cli.Command, error) {
-			return &command.CreateRunCommand{Meta: meta}, nil
+			return &cmd.CreateRunCommand{Meta: meta}, nil
 		},
 		"run apply": func() (cli.Command, error) {
-			return &command.ApplyRunCommand{Meta: meta}, nil
+			return &cmd.ApplyRunCommand{Meta: meta}, nil
 		},
 		"run show": func() (cli.Command, error) {
-			return &command.ShowRunCommand{Meta: meta}, nil
+			return &cmd.ShowRunCommand{Meta: meta}, nil
 		},
 		"run discard": func() (cli.Command, error) {
-			return &command.DiscardRunCommand{Meta: meta}, nil
+			return &cmd.DiscardRunCommand{Meta: meta}, nil
 		},
 		"run cancel": func() (cli.Command, error) {
-			return &command.CancelRunCommand{Meta: meta}, nil
+			return &cmd.CancelRunCommand{Meta: meta}, nil
 		},
 		"plan output": func() (cli.Command, error) {
-			return &command.OutputPlanCommand{Meta: meta}, nil
+			return &cmd.OutputPlanCommand{Meta: meta}, nil
 		},
 		"workspace output list": func() (cli.Command, error) {
-			return &command.WorkspaceOutputCommand{Meta: meta}, nil
+			return &cmd.WorkspaceOutputCommand{Meta: meta}, nil
 		},
 	}
 

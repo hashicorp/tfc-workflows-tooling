@@ -24,18 +24,18 @@ type ConfigVersionService interface {
 }
 
 type configVersionService struct {
-	*tfe.Client
+	*cloudMeta
 }
 
 func (service *configVersionService) UploadConfig(ctx context.Context, options UploadOptions) (*tfe.ConfigurationVersion, error) {
-	workspace, wErr := service.Workspaces.Read(ctx, options.Organization, options.Workspace)
+	workspace, wErr := service.tfe.Workspaces.Read(ctx, options.Organization, options.Workspace)
 
 	if wErr != nil {
 		log.Printf("[ERROR] error reading workspace: %q organization: %q error: %s", options.Workspace, options.Organization, wErr)
 		return nil, wErr
 	}
 
-	configVersion, cvErr := service.ConfigurationVersions.Create(ctx, workspace.ID, tfe.ConfigurationVersionCreateOptions{
+	configVersion, cvErr := service.tfe.ConfigurationVersions.Create(ctx, workspace.ID, tfe.ConfigurationVersionCreateOptions{
 		Speculative:   &options.Speculative,
 		AutoQueueRuns: tfe.Bool(false),
 	})
@@ -45,23 +45,24 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 		return configVersion, cvErr
 	}
 
-	fmt.Printf("Configuration Version has been created: %s\n", configVersion.ID)
+	service.writer.Output(fmt.Sprintf("Configuration Version has been created: %s", configVersion.ID))
 
-	err := service.ConfigurationVersions.Upload(ctx, configVersion.UploadURL, options.ConfigurationDirectory)
+	err := service.tfe.ConfigurationVersions.Upload(ctx, configVersion.UploadURL, options.ConfigurationDirectory)
 
 	if err != nil {
 		log.Printf("[ERROR] error uploading configuration version: %s", err)
 		return configVersion, err
 	}
 
-	fmt.Println("Uploading configuration...")
+	service.writer.Output("Uploading configuration...")
+
 	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
 		log.Printf("[DEBUG] Monitoring Upload Status...")
-		cv, err := service.ConfigurationVersions.Read(ctx, configVersion.ID)
+		cv, err := service.tfe.ConfigurationVersions.Read(ctx, configVersion.ID)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Upload Status: '%s'\n", cv.Status)
+		service.writer.Output(fmt.Sprintf("Upload Status: %q", cv.Status))
 		if cv.Status == tfe.ConfigurationUploaded || cv.Status == tfe.ConfigurationErrored {
 			// update configVersion to latest results
 			configVersion = cv
@@ -78,6 +79,6 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	return configVersion, err
 }
 
-func NewConfigVersionService(c *tfe.Client) ConfigVersionService {
-	return &configVersionService{c}
+func NewConfigVersionService(meta *cloudMeta) ConfigVersionService {
+	return &configVersionService{meta}
 }

@@ -7,12 +7,12 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
-	"github.com/mitchellh/cli"
 )
 
 type Status string
@@ -24,19 +24,42 @@ const (
 	Noop    Status = "Noop"
 )
 
+type Writer interface {
+	UseJson(json bool)
+	Output(msg string)
+	Error(msg string)
+	OutputResult(msg string)
+	ErrorResult(msg string)
+}
+
 type Meta struct {
 	// Organization for Terraform Cloud installation
-	Organization string
-	// cli ui settings
-	Ui cli.Ui
+	organization string
 	// parent context
-	Context context.Context
+	appCtx context.Context
 	// CI environment variables & output
-	Env *environment.CI
+	env *environment.CI
 	// shared go-tfe client
 	cloud *cloud.Cloud
 	// messages for stdout, platform output
 	messages map[string]*outputMessage
+	// writer interface to handle result and diagnostic information
+	writer Writer
+	// flag to prevent non-json messages to stdout
+	json bool
+}
+
+func (c *Meta) setupCmd(args []string, flags *flag.FlagSet) error {
+	if err := flags.Parse(args); err != nil {
+		c.emitFlagOptions()
+		c.addOutput("status", string(Error))
+		c.closeOutput()
+		c.writer.ErrorResult(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+		return err
+	}
+
+	c.emitFlagOptions()
+	return nil
 }
 
 func (c *Meta) flagSet(name string) *flag.FlagSet {
@@ -44,7 +67,16 @@ func (c *Meta) flagSet(name string) *flag.FlagSet {
 	f.SetOutput(ioutil.Discard)
 	f.Usage = func() {}
 
+	f.BoolVar(&c.json, "json", false, "Suppresses all logs and instead returns output value in JSON format")
+
 	return f
+}
+
+func (c *Meta) emitFlagOptions() {
+	// configure json option for command writer
+	c.writer.UseJson(c.json)
+	// configure json option for cloud writer
+	c.cloud.UseJson(c.json)
 }
 
 func (c *Meta) resolveStatus(err error) Status {
@@ -98,10 +130,10 @@ func (c *Meta) closeOutput() string {
 	}
 
 	// check to see if we're running in CI environment
-	if c.Env.Context != nil {
+	if c.env.Context != nil {
 		// pass output data and close signifying we're done
-		c.Env.Context.SetOutput(platOutput)
-		c.Env.Context.CloseOutput()
+		c.env.Context.SetOutput(platOutput)
+		c.env.Context.CloseOutput()
 	}
 
 	outJson, err := json.MarshalIndent(stdOutput, "", "  ")
@@ -109,6 +141,33 @@ func (c *Meta) closeOutput() string {
 		return string(err.Error())
 	}
 	return string(outJson)
+}
+
+func WithOrg(org string) func(*Meta) {
+	return func(m *Meta) {
+		m.organization = org
+	}
+}
+
+func WithWriter(w Writer) func(*Meta) {
+	return func(m *Meta) {
+		m.writer = w
+	}
+}
+
+func NewMetaOpts(ctx context.Context, tfeClient *cloud.Cloud, ciEnv *environment.CI, setters ...func(*Meta)) *Meta {
+	m := &Meta{
+		cloud:    tfeClient,
+		appCtx:   ctx,
+		env:      ciEnv,
+		messages: make(map[string]*outputMessage),
+	}
+
+	for _, setter := range setters {
+		setter(m)
+	}
+
+	return m
 }
 
 func NewMeta(c *cloud.Cloud) *Meta {

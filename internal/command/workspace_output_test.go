@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/mitchellh/cli"
 )
 
@@ -40,17 +41,16 @@ func testWorkspaceOutputCommand(t *testing.T, opts *testWorkspaceOutputCommandOp
 		}
 	}
 
-	cloudMockService := &cloud.Cloud{
-		WorkspaceService: &WorkspaceOutputReader{
-			svo: &tfe.StateVersionOutputsList{
-				Items: opts.items,
-			},
+	ui := cli.NewMockUi()
+	writer := writer.NewWriter(ui)
+	cloudMockService := cloud.NewCloud(&tfe.Client{}, writer)
+	cloudMockService.WorkspaceService = &WorkspaceOutputReader{
+		svo: &tfe.StateVersionOutputsList{
+			Items: opts.items,
 		},
 	}
-	ui := cli.NewMockUi()
-	meta := NewMeta(cloudMockService)
-	meta.Ui = ui
-	meta.Env = &environment.CI{}
+
+	meta := NewMetaOpts(context.Background(), cloudMockService, &environment.CI{}, WithWriter(writer))
 
 	return ui, &WorkspaceOutputCommand{Meta: meta}
 }

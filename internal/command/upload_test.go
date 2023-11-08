@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/tfci/internal/cloud"
 	"github.com/hashicorp/tfci/internal/environment"
+	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/mitchellh/cli"
 )
 
@@ -22,13 +23,15 @@ func (s *SuccessfulUploader) UploadConfig(_ context.Context, _ cloud.UploadOptio
 }
 
 func meta(cv *tfe.ConfigurationVersion) *Meta {
-	meta := NewMeta(&cloud.Cloud{
-		ConfigVersionService: &SuccessfulUploader{
-			configurationVersion: cv,
-		},
-	})
-	meta.Ui = &cli.MockUi{}
-	meta.Env = &environment.CI{}
+	ctx := context.Background()
+	ui := cli.NewMockUi()
+	writer := writer.NewWriter(ui)
+	cloudService := cloud.NewCloud(&tfe.Client{}, writer)
+	cloudService.ConfigVersionService = &SuccessfulUploader{
+		configurationVersion: cv,
+	}
+	env := &environment.CI{}
+	meta := NewMetaOpts(ctx, cloudService, env, WithWriter(writer))
 	return meta
 }
 

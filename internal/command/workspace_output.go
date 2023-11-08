@@ -27,19 +27,8 @@ func (c *WorkspaceOutputCommand) flags() *flag.FlagSet {
 	return f
 }
 
-func (c *WorkspaceOutputCommand) SetupCmd(args []string) (err error) {
-	flags := c.flags()
-	if err = flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
-		return err
-	}
-	return
-}
-
 func (c *WorkspaceOutputCommand) Run(args []string) int {
-	if err := c.SetupCmd(args); err != nil {
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
@@ -47,16 +36,16 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 	if c.Workspace == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error("error workspace output list requires a workspace name")
+		c.writer.ErrorResult("error workspace output list requires a workspace name")
 		return 1
 	}
 
-	svoList, svoErr := c.cloud.ReadStateOutputs(c.Context, c.Organization, c.Workspace)
+	svoList, svoErr := c.cloud.ReadStateOutputs(c.appCtx, c.organization, c.Workspace)
 	if svoErr != nil {
 		status := c.resolveStatus(svoErr)
 		c.addOutput("status", string(status))
 		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error retrieving workspace state version outputs: %s\n", svoErr.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error retrieving workspace state version outputs: %s\n", svoErr.Error()))
 		return 1
 	}
 
@@ -74,7 +63,7 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 		platformOut: true,
 	})
 	c.addOutput("status", string(Success))
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 

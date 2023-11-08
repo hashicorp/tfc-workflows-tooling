@@ -17,6 +17,7 @@ import (
 func TestUpload(t *testing.T) {
 	type fields struct {
 		Client *tfe.Client
+		writer Writer
 	}
 
 	type args struct {
@@ -29,6 +30,8 @@ func TestUpload(t *testing.T) {
 		UploadURL: "cv.com",
 		Status:    tfe.ConfigurationUploaded,
 	}
+
+	writer := &defaultWriter{}
 
 	tests := []struct {
 		name        string
@@ -51,6 +54,7 @@ func TestUpload(t *testing.T) {
 			name: "upload success",
 			fields: fields{
 				Client: &tfe.Client{},
+				writer: writer,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -79,6 +83,7 @@ func TestUpload(t *testing.T) {
 			name: "workspace read fails",
 			fields: fields{
 				Client: &tfe.Client{},
+				writer: writer,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -127,11 +132,13 @@ func TestUpload(t *testing.T) {
 				mockCv.EXPECT().Read(tt.args.ctx, tt.cv.ID).Return(tt.cv, tt.cvCreateErr)
 			}
 
-			client := &configVersionService{
-				Client: tt.fields.Client,
+			m := &cloudMeta{
+				tfe:    tt.fields.Client,
+				writer: writer,
 			}
-			client.Workspaces = mockWs
-			client.ConfigurationVersions = mockCv
+			m.tfe.Workspaces = mockWs
+			m.tfe.ConfigurationVersions = mockCv
+			client := NewConfigVersionService(m)
 
 			got, err := client.UploadConfig(tt.args.ctx, tt.args.options)
 			if (err != nil) != tt.wantErr {

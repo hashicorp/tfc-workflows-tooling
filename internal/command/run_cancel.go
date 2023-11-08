@@ -30,28 +30,24 @@ func (c *CancelRunCommand) flags() *flag.FlagSet {
 }
 
 func (c *CancelRunCommand) Run(args []string) int {
-	flags := c.flags()
-	if err := flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error("cancelling a run requires a run id")
+		c.writer.ErrorResult("cancelling a run requires a run id")
 		return 1
 	}
 
 	// fetch existing run details
-	run, runErr := c.cloud.GetRun(c.Context, cloud.GetRunOptions{RunID: c.RunID})
+	run, runErr := c.cloud.GetRun(c.appCtx, cloud.GetRunOptions{RunID: c.RunID})
 
 	if runErr != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("unable to read run: %s with: %s", c.RunID, runErr.Error()))
 		return 1
 	}
 
@@ -59,8 +55,8 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if c.ForceCancel && !run.Actions.IsForceCancelable {
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("run %s, cannot be force-cancelled", c.RunID))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("run %s, cannot be force-cancelled", c.RunID))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
@@ -68,12 +64,12 @@ func (c *CancelRunCommand) Run(args []string) int {
 	if !c.ForceCancel && !run.Actions.IsCancelable {
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("run %s, cannot be cancelled", c.RunID))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("run %s, cannot be cancelled", c.RunID))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
-	latestRun, cancelErr := c.cloud.CancelRun(c.Context, cloud.CancelRunOptions{
+	latestRun, cancelErr := c.cloud.CancelRun(c.appCtx, cloud.CancelRunOptions{
 		RunID:       c.RunID,
 		Comment:     c.Comment,
 		ForceCancel: c.ForceCancel,
@@ -86,14 +82,14 @@ func (c *CancelRunCommand) Run(args []string) int {
 		status := c.resolveStatus(cancelErr)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, cancelErr.Error()))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, cancelErr.Error()))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 
@@ -101,7 +97,7 @@ func (c *CancelRunCommand) addRunDetails(run *tfe.Run) {
 	if run == nil {
 		return
 	}
-	link, _ := c.cloud.RunLink(c.Context, c.Organization, run)
+	link, _ := c.cloud.RunLink(c.appCtx, c.organization, run)
 	if link != "" {
 		c.addOutput("run_link", link)
 	}

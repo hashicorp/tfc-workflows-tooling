@@ -32,11 +32,7 @@ func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
 }
 
 func (c *UploadConfigurationCommand) Run(args []string) int {
-	flags := c.flags()
-	if err := flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
@@ -46,15 +42,15 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 	if dirError != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error resolving directory path %s", dirError.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error resolving directory path %s", dirError.Error()))
 		return 1
 	}
 
 	log.Printf("[DEBUG] target directory for configuration upload: %s", dirPath)
 
-	configVersion, cvError := c.cloud.UploadConfig(c.Context, cloud.UploadOptions{
+	configVersion, cvError := c.cloud.UploadConfig(c.appCtx, cloud.UploadOptions{
 		Workspace:              c.Workspace,
-		Organization:           c.Organization,
+		Organization:           c.organization,
 		ConfigurationDirectory: dirPath,
 		Speculative:            c.Speculative,
 	})
@@ -63,14 +59,14 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 		status := c.resolveStatus(cvError)
 		c.addOutput("status", string(status))
 		c.addConfigurationDetails(configVersion)
-		c.Ui.Error(fmt.Sprintf("error uploading configuration version to Terraform Cloud: %s", cvError.Error()))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("error uploading configuration version to Terraform Cloud: %s", cvError.Error()))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addConfigurationDetails(configVersion)
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 

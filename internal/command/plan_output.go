@@ -25,26 +25,22 @@ func (c *OutputPlanCommand) flags() *flag.FlagSet {
 }
 
 func (c *OutputPlanCommand) Run(args []string) int {
-	flags := c.flags()
-	if err := flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
-	plan, pErr := c.cloud.GetPlan(c.Context, c.PlanID)
+	plan, pErr := c.cloud.GetPlan(c.appCtx, c.PlanID)
 	if pErr != nil {
 		c.addOutput("status", string(Error))
 		c.addPlanDetails(plan)
-		c.Ui.Error(fmt.Sprintf("error retrieving plan data %s\n", pErr.Error()))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("error retrieving plan data %s\n", pErr.Error()))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addPlanDetails(plan)
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 

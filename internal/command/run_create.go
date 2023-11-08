@@ -34,11 +34,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 }
 
 func (c *CreateRunCommand) Run(args []string) int {
-	flags := c.flags()
-	if err := flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
@@ -49,8 +45,8 @@ func (c *CreateRunCommand) Run(args []string) int {
 		c.Message = c.defaultRunMessage()
 	}
 
-	run, runError := c.cloud.CreateRun(c.Context, cloud.CreateRunOptions{
-		Organization:           c.Organization,
+	run, runError := c.cloud.CreateRun(c.appCtx, cloud.CreateRunOptions{
+		Organization:           c.organization,
 		Workspace:              c.Workspace,
 		ConfigurationVersionID: c.ConfigurationVersionID,
 		Message:                c.Message,
@@ -66,14 +62,14 @@ func (c *CreateRunCommand) Run(args []string) int {
 		errMsg := fmt.Sprintf("error while creating run in Terraform Cloud: %s", runError.Error())
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.Ui.Error(errMsg)
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(errMsg)
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 
@@ -82,7 +78,7 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 		log.Printf("[ERROR] run is not detected")
 		return
 	}
-	runLink, _ := c.cloud.RunService.RunLink(c.Context, c.Organization, run)
+	runLink, _ := c.cloud.RunService.RunLink(c.appCtx, c.organization, run)
 	if runLink != "" {
 		c.addOutput("run_link", runLink)
 	}
@@ -98,7 +94,7 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 		c.addOutput("cost_estimation_id", run.CostEstimate.ID)
 		c.addOutput("cost_estimation_status", string(run.CostEstimate.Status))
 		if run.CostEstimate.ErrorMessage != "" {
-			c.Ui.Error(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
+			c.writer.ErrorResult(fmt.Sprintf("Cost Estimation errored: %s", run.CostEstimate.ErrorMessage))
 		}
 	}
 
@@ -111,24 +107,24 @@ func (c *CreateRunCommand) addRunDetails(run *tfe.Run) {
 
 func (c *CreateRunCommand) readPlanLogs(run *tfe.Run) {
 	// Pre Plan task stages
-	c.cloud.LogTaskStage(c.Context, run, tfe.PrePlan)
+	c.cloud.LogTaskStage(c.appCtx, run, tfe.PrePlan)
 	// Plan
-	if pLogErr := c.cloud.GetPlanLogs(c.Context, run.Plan.ID); pLogErr != nil {
-		c.Ui.Error(fmt.Sprintf("failed to read plan logs: %s", pLogErr.Error()))
+	if pLogErr := c.cloud.GetPlanLogs(c.appCtx, run.Plan.ID); pLogErr != nil {
+		c.writer.ErrorResult(fmt.Sprintf("failed to read plan logs: %s", pLogErr.Error()))
 	}
 	// Post Plan task stages
-	c.cloud.LogTaskStage(c.Context, run, tfe.PostPlan)
+	c.cloud.LogTaskStage(c.appCtx, run, tfe.PostPlan)
 	// cost estimation
-	c.cloud.LogCostEstimation(c.Context, run)
+	c.cloud.LogCostEstimation(c.appCtx, run)
 	// sentinel policies
-	if policyLogErr := c.cloud.GetPolicyCheckLogs(c.Context, run); policyLogErr != nil {
-		c.Ui.Error(fmt.Sprintf("failed to read policy check logs: %s", policyLogErr.Error()))
+	if policyLogErr := c.cloud.GetPolicyCheckLogs(c.appCtx, run); policyLogErr != nil {
+		c.writer.ErrorResult(fmt.Sprintf("failed to read policy check logs: %s", policyLogErr.Error()))
 	}
 }
 
 func (c *CreateRunCommand) defaultRunMessage() string {
-	if c.Env.Context != nil {
-		return fmt.Sprintf("Triggered from Terraform Cloud CI by Author (%s) for SHA (%s)", c.Env.Context.Author(), c.Env.Context.SHAShort())
+	if c.env.Context != nil {
+		return fmt.Sprintf("Triggered from Terraform Cloud CI by Author (%s) for SHA (%s)", c.env.Context.Author(), c.env.Context.SHAShort())
 	}
 	return `Triggered from Terraform Cloud CI`
 }

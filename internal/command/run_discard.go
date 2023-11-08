@@ -28,29 +28,25 @@ func (c *DiscardRunCommand) flags() *flag.FlagSet {
 }
 
 func (c *DiscardRunCommand) Run(args []string) int {
-	flags := c.flags()
-	if err := flags.Parse(args); err != nil {
-		c.addOutput("status", string(Error))
-		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("error parsing command-line flags: %s\n", err.Error()))
+	if err := c.setupCmd(args, c.flags()); err != nil {
 		return 1
 	}
 
 	if c.RunID == "" {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error("discarding a run requires a valid run id")
+		c.writer.ErrorResult("discarding a run requires a valid run id")
 		return 1
 	}
 
 	// fetch latest run details
-	run, runErr := c.cloud.GetRun(c.Context, cloud.GetRunOptions{
+	run, runErr := c.cloud.GetRun(c.appCtx, cloud.GetRunOptions{
 		RunID: c.RunID,
 	})
 	if runErr != nil {
 		c.addOutput("status", string(Error))
 		c.closeOutput()
-		c.Ui.Error(fmt.Sprintf("unable to read run: %s, with: %s", c.RunID, runErr.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("unable to read run: %s, with: %s", c.RunID, runErr.Error()))
 		return 1
 	}
 
@@ -58,12 +54,12 @@ func (c *DiscardRunCommand) Run(args []string) int {
 	if !run.Actions.IsDiscardable {
 		c.addOutput("status", string(Error))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("run: %s cannot be discarded", c.RunID))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("run: %s cannot be discarded", c.RunID))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
-	latestRun, discardErr := c.cloud.DiscardRun(c.Context, cloud.DiscardRunOptions{
+	latestRun, discardErr := c.cloud.DiscardRun(c.appCtx, cloud.DiscardRunOptions{
 		RunID:   c.RunID,
 		Comment: c.Comment,
 	})
@@ -76,14 +72,14 @@ func (c *DiscardRunCommand) Run(args []string) int {
 		status := c.resolveStatus(discardErr)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.Ui.Error(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, discardErr.Error()))
-		c.Ui.Output(c.closeOutput())
+		c.writer.ErrorResult(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, discardErr.Error()))
+		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
 
 	c.addOutput("status", string(Success))
 	c.addRunDetails(run)
-	c.Ui.Output(c.closeOutput())
+	c.writer.OutputResult(c.closeOutput())
 	return 0
 }
 
@@ -91,7 +87,7 @@ func (c *DiscardRunCommand) addRunDetails(run *tfe.Run) {
 	if run == nil {
 		return
 	}
-	link, _ := c.cloud.RunLink(c.Context, c.Organization, run)
+	link, _ := c.cloud.RunLink(c.appCtx, c.organization, run)
 	if link != "" {
 		c.addOutput("run_link", link)
 	}

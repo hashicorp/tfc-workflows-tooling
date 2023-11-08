@@ -15,14 +15,6 @@ import (
 	"github.com/mitchellh/cli"
 )
 
-type ui struct {
-	cli.Ui
-}
-
-func (u *ui) Warn(msg string) {
-	u.Ui.Output(msg)
-}
-
 var (
 	Ui     cli.Ui
 	appCtx context.Context
@@ -39,11 +31,15 @@ func main() {
 	})
 
 	// Ui settings
-	Ui = &ui{&cli.BasicUi{
-		Writer:      os.Stdout,
-		ErrorWriter: os.Stderr,
-		Reader:      os.Stdin,
-	}}
+	Ui = &cli.ColoredUi{
+		ErrorColor: cli.UiColorRed,
+		WarnColor:  cli.UiColorYellow,
+		Ui: &cli.BasicUi{
+			Writer:      os.Stdout,
+			ErrorWriter: os.Stderr,
+			Reader:      os.Stdin,
+		},
+	}
 
 	appCtx = context.Background()
 

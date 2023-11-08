@@ -17,7 +17,7 @@ type WorkspaceService interface {
 }
 
 type workspaceService struct {
-	tfe *tfe.Client
+	*cloudMeta
 }
 
 // wait 5 minutes for current state version finish processing
@@ -75,6 +75,6 @@ func (s *workspaceService) ReadStateOutputs(ctx context.Context, orgName string,
 	return svoList, svoErr
 }
 
-func NewWorkspaceService(tfe *tfe.Client) *workspaceService {
-	return &workspaceService{tfe}
+func NewWorkspaceService(meta *cloudMeta) *workspaceService {
+	return &workspaceService{meta}
 }
