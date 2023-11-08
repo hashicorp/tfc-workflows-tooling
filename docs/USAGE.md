@@ -81,13 +81,13 @@ Since tfci is executing within a Docker container, the `upload` command needs to
 
 In order to configure this, you will need to set both a Working directory for the container as well as a bind mount from the host machine.
 
-The `WORKDIR` or `--workdir` in the container can be any path, even one that does not exist within container. Example `--workdir "/tfci/workspace"`, docker will create the filesystem path in the container for you.
+The `WORKDIR` or `--workdir` in the container can be any path, even one that does not exist within the container. Example `--workdir "/tfci/workspace"`, docker will create the directory in the container for you.
 
-Use the `--volumes` or `-v` flag, to create a bind mount between the container working directory and filesystem path on the host machine containing the terraform configuration to upload
+Use the `--volumes` or `-v` flag, to create a bind mount between the container working directory and filesystem path on the host machine containing the terraform configuration to upload.
 
 #### Example
 
-Say your project lives withing the following path on the host, `/path/to/your/configuration`.
+Say your project is located at the following path on the host machine, `/path/to/your/configuration`.
 ```
 ├── terraform/
 |   └── main.tf

@@ -5,14 +5,14 @@ If you have any questions or need clarification feel free to open an [issue](htt
 ## Setup
 
 Tfci currently supports the following CI/CD platforms:
-* GitHub Actions
-* GitLab Pipelines
+* [GitHub Actions](https://docs.github.com/en/actions)
+* [GitLab Pipelines](https://docs.gitlab.com/ee/ci/pipelines/)
 
 Tfci can be instrumented for other platforms with the use of the [published Docker Container](https://hub.docker.com/r/hashicorp/tfci).
 
 ### Docker
 
-The default artifact generated is a Docker container, hosted in the public Docker registry. `docker://hashicorp/tfci:{VERSION}`.
+Tfci generates an Docker container artifact that is available from the Docker public registry, `docker://hashicorp/tfci:{VERSION}`.
 
 Leveraging the publicly distributed Docker image is the recommended approach for running Tfci on CI/CD platforms for non-human interactions.
 
@@ -34,31 +34,31 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 
 ### [Terraform Cloud CLI](https://developer.hashicorp.com/terraform/cloud-docs/run/cli) vs. [Terraform Cloud API](https://developer.hashicorp.com/terraform/cloud-docs/run/api)
 
-| Workflow   |    Terraform CLI (Cloud)                   |  TFCI/Terraform Cloud API                      |
+| Workflow   |    Terraform CLI (Cloud)            |  TFCI/Terraform Cloud API                      |
 |------------|-------------------------------------|------------------------------------------------|
 | Plan       |  `terraform plan`                   |  commands: `upload`, `run create`              |
 | Apply      |  `terraform apply -auto-approve`    |  commands: `upload`,  `run create`, `run apply`|
 
 #### Terraform Plan
 
-Terraform CLI (Cloud) can execute a new plan with one command that will upload Terraform configuration and execute a new run in Terraform Cloud.
+Terraform Cloud CLI can execute a new plan with one command that will upload Terraform configuration and execute a new run in Terraform Cloud.
 
-With TFCI/API driven runs, these actions are broken up into multiple parts:
+With tfci and Terraform Cloud API driven runs, these actions are broken up into multiple parts:
 - Upload terraform configuration as a ConfigurationVersion
 - Create a new run using that Configuration Version. If the run was not specified as `plan-only`, then it could be optionally approved or applied.
 
 #### Terraform Apply
 
-Terraform CLI (Cloud) can execute an apply run with, `terraform apply` that will also upload the configuration and start a new Terraform Cloud run that will plan and apply.
+Terraform Cloud CLI can execute an apply run with, `terraform apply` that will also upload the configuration and start a new Terraform Cloud run that will plan and apply.
 
-TFCI/API driven runs:
+With tfci and Terraform Cloud API driven runs:
 - Upload terraform configuration as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
 
 ### Prescribed Workflows
 
-As part of the initiative for tfc-workflows-tooling and tfci, we prescribe the following recommended workflows:
+As part of the initiative for this project and tfci, we prescribe the following recommended workflows:
 * Speculative Run
 * Plan/Apply Run
 
