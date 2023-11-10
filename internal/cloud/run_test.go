@@ -43,6 +43,7 @@ func testGenerateServiceMocks(t *testing.T, ctrl *gomock.Controller, tc createRu
 		ConfigurationVersion: tc.tfeConfigVersion,
 		Workspace:            tc.tfeWorkspace,
 		PlanOnly:             tfe.Bool(tc.tfeRun.PlanOnly),
+		SavePlan:             tfe.Bool(tc.tfeRun.SavePlan),
 		Message:              tfe.String(""),
 		Variables:            []*tfe.RunVariable{},
 	}).Return(tc.tfeRun, nil)
