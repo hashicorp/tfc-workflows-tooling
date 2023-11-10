@@ -39,6 +39,7 @@ var CancelNoopStatus = []tfe.RunStatus{
 	tfe.RunApplied,
 	tfe.RunPlanned,
 	tfe.RunPlannedAndFinished,
+	tfe.RunPlannedAndSaved,
 }
 
 var NoopStatus = []tfe.RunStatus{
@@ -57,6 +58,7 @@ type CreateRunOptions struct {
 	ConfigurationVersionID string
 	Message                string
 	PlanOnly               bool
+	SavePlan               bool
 	RunVariables           []*tfe.RunVariable
 }
 
@@ -155,6 +157,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	createOpts.Workspace = w
 	createOpts.Message = &options.Message
 	createOpts.PlanOnly = tfe.Bool(options.PlanOnly)
+	createOpts.SavePlan = tfe.Bool(options.SavePlan)
 	createOpts.Variables = options.RunVariables
 
 	// create the run
@@ -503,6 +506,10 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 		tfe.RunPolicySoftFailed,
 		tfe.RunPlannedAndFinished,
 		tfe.RunApplied,
+	}
+	
+	if run.SavePlan {
+		desiredStatus = append(desiredStatus, tfe.RunPlannedAndSaved)
 	}
 
 	// when plan_only run

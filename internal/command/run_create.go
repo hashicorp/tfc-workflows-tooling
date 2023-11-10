@@ -21,6 +21,7 @@ type CreateRunCommand struct {
 	Message                string
 
 	PlanOnly bool
+	SavePlan bool
 }
 
 func (c *CreateRunCommand) flags() *flag.FlagSet {
@@ -29,7 +30,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.StringVar(&c.ConfigurationVersionID, "configuration_version", "", "The Configuration Version ID to use for this run.")
 	f.StringVar(&c.Message, "message", "", "Specifies the message to be associated with this run. A default message will be set.")
 	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
-
+	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
 	return f
 }
 
@@ -51,6 +52,7 @@ func (c *CreateRunCommand) Run(args []string) int {
 		ConfigurationVersionID: c.ConfigurationVersionID,
 		Message:                c.Message,
 		PlanOnly:               c.PlanOnly,
+		SavePlan:               c.SavePlan,
 		RunVariables:           runVars,
 	})
 	if run != nil {
@@ -152,6 +154,8 @@ Options:
 	-message                Specifies the message to be associated with this run. A default message will be set.
 
 	-plan-only              Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.
+
+	-save-plan              Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.
 	`
 	return strings.TrimSpace(helpText)
 }

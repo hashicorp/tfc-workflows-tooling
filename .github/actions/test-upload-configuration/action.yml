@@ -32,6 +32,10 @@ inputs:
     required: false
     description: "When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied."
     default: "false"
+  provisional:
+    required: false
+    description: "When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied"
+    default: "false"
 
 outputs:
   status:
@@ -57,3 +61,4 @@ runs:
   - -workspace=${{ inputs.workspace }}
   - -directory=${{ inputs.directory }}
   - -speculative=${{ inputs.speculative }}
+  - -provisional=${{ inputs.provisional }}
