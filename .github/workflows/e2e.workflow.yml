@@ -41,7 +41,7 @@ jobs:
     needs: initialize-tfc-resources
     strategy:
       matrix:
-        option:
+        include:
           - speculative: true
             save_plan: false
           - speculative: false
@@ -58,16 +58,16 @@ jobs:
         with:
           workspace: ci-workspace-test
           directory: .github/terraform/workspace
-          speculative: ${{ matrix.option.speculative }}
-          provisional: ${{ matrix.option.save_plan }}
+          speculative: ${{ matrix.speculative }}
+          provisional: ${{ matrix.save_plan }}
 
       - uses: ./.github/actions/test-create-run
         id: create-run
         with:
           configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
           workspace: ci-workspace-test
-          plan_only: ${{ matrix.option.speculative }}
-          save_plan: ${{ matrix.option.save_plan }}
+          plan_only: ${{ matrix.speculative }}
+          save_plan: ${{ matrix.save_plan }}
 
       - uses: ./.github/actions/test-plan-output
         id: plan
