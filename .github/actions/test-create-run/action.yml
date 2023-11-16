@@ -81,4 +81,4 @@ runs:
   - -configuration_version=${{ inputs.configuration_version }}
   - -message=${{ inputs.message }}
   - -plan-only=${{ inputs.plan_only }}
-  - -save-plan=${{ inputs.sava_plan }}
+  - -save-plan=${{ inputs.save_plan }}
