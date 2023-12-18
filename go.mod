@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-hclog v1.6.1
+	github.com/hashicorp/go-hclog v1.6.2
 	github.com/hashicorp/go-tfe v1.40.0
 	github.com/mitchellh/cli v1.1.5
 	github.com/sethvargo/go-retry v0.2.4
