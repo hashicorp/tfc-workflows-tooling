@@ -38,6 +38,7 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 |------------|-------------------------------------|------------------------------------------------|
 | Plan       |  `terraform plan`                   |  commands: `upload`, `run create`              |
 | Apply      |  `terraform apply -auto-approve`    |  commands: `upload`,  `run create`, `run apply`|
+| Destroy    |  `terraform plan -destroy -out=destroy.tfplan` , `terraform apply destroy.tfplan`| commands: `run create -is-destroy=true` |
 
 #### Terraform Plan
 
@@ -53,6 +54,15 @@ Terraform Cloud CLI can execute an apply run with, `terraform apply` that will a
 
 With Tfci and Terraform Cloud API driven runs:
 - Upload terraform configuration as a ConfigurationVersion
+- New plan run executes
+- If plan phase was successful, an apply can be confirmed to proceed
+
+#### Terraform Destroy
+
+Terraform Cloud CLI can execute a destroy run with, `terraform plan -destroy -out=destroy.tfplan` followed by `terraform apply destroy.tfplan`, that will also upload the configuration and start a new Terraform Cloud run that will plan and destroy.
+
+With Tfci and Terraform Cloud API driven runs:
+- Upload terraform configuraiton as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
 

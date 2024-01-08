@@ -58,6 +58,7 @@ type CreateRunOptions struct {
 	ConfigurationVersionID string
 	Message                string
 	PlanOnly               bool
+	IsDestroy              bool
 	SavePlan               bool
 	RunVariables           []*tfe.RunVariable
 }
@@ -157,6 +158,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	createOpts.Workspace = w
 	createOpts.Message = &options.Message
 	createOpts.PlanOnly = tfe.Bool(options.PlanOnly)
+	createOpts.IsDestroy = tfe.Bool(options.IsDestroy)
 	createOpts.SavePlan = tfe.Bool(options.SavePlan)
 	createOpts.Variables = options.RunVariables
 
@@ -507,7 +509,7 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 		tfe.RunPlannedAndFinished,
 		tfe.RunApplied,
 	}
-	
+
 	if run.SavePlan {
 		desiredStatus = append(desiredStatus, tfe.RunPlannedAndSaved)
 	}

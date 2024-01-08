@@ -3,6 +3,11 @@
 ## Enhancements
 * Add support for saved plans by @1newsr [#57](https://github.com/hashicorp/tfc-workflows-tooling/pull/57)
 
+# v1.1.2
+
+## Enhancements
+* Adds support for Terraform destroy under `run create` command by @trutled3 [#](https://github.com/hashicorp/tfc-workflows-tooling/pull/)
+
 ## Bug Fixes
 
 # v1.1.1
