@@ -6,7 +6,7 @@
 # v1.1.2
 
 ## Enhancements
-* Adds support for Terraform destroy under `run create` command by @trutled3 [#](https://github.com/hashicorp/tfc-workflows-tooling/pull/)
+* Adds support for Terraform destroy under `run create` command by @trutled3 [#80](https://github.com/hashicorp/tfc-workflows-tooling/pull/80)
 
 ## Bug Fixes
 
