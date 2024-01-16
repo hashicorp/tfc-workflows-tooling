@@ -5,6 +5,9 @@
 
 ## Bug Fixes
 
+## Additional changes
+* Adds the tfci binary to .gitignore [#81](https://github.com/hashicorp/tfc-workflows-tooling/pull/81)
+
 # v1.1.1
 
 ## Enhancements
