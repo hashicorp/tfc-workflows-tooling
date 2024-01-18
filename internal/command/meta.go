@@ -169,10 +169,3 @@ func NewMetaOpts(ctx context.Context, tfeClient *cloud.Cloud, ciEnv *environment
 
 	return m
 }
-
-func NewMeta(c *cloud.Cloud) *Meta {
-	return &Meta{
-		cloud:    c,
-		messages: make(map[string]*outputMessage),
-	}
-}
