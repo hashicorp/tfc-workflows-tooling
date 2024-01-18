@@ -62,7 +62,7 @@ With Tfci and Terraform Cloud API driven runs:
 Terraform Cloud CLI can execute a destroy run with, `terraform plan -destroy -out=destroy.tfplan` followed by `terraform apply destroy.tfplan`, that will also upload the configuration and start a new Terraform Cloud run that will plan and destroy.
 
 With Tfci and Terraform Cloud API driven runs:
-- Upload terraform configuraiton as a ConfigurationVersion
+- Upload terraform configuration as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
 

@@ -43,6 +43,7 @@ func testGenerateServiceMocks(t *testing.T, ctrl *gomock.Controller, tc createRu
 		ConfigurationVersion: tc.tfeConfigVersion,
 		Workspace:            tc.tfeWorkspace,
 		PlanOnly:             tfe.Bool(tc.tfeRun.PlanOnly),
+		IsDestroy:            tfe.Bool(tc.tfeRun.IsDestroy),
 		SavePlan:             tfe.Bool(tc.tfeRun.SavePlan),
 		Message:              tfe.String(""),
 		Variables:            []*tfe.RunVariable{},
@@ -66,6 +67,28 @@ func TestRunService_CreateRun(t *testing.T) {
 			tfeRun: &tfe.Run{
 				ID:       "run-***",
 				PlanOnly: true,
+			},
+			statusChanges: []tfe.RunStatus{
+				tfe.RunPlanning,
+				tfe.RunPlanning,
+				tfe.RunCostEstimated,
+				tfe.RunPolicyChecked,
+			},
+			finalStatus: tfe.RunPlannedAndFinished,
+		},
+		{
+			name:          "destroy-run",
+			orgName:       "test",
+			workspaceName: "my-workspace",
+			ctx:           context.Background(),
+			tfeWorkspace:  &tfe.Workspace{ID: "ws-***"},
+			tfeConfigVersion: &tfe.ConfigurationVersion{
+				ID:     "cv-***",
+				Status: tfe.ConfigurationUploaded,
+			},
+			tfeRun: &tfe.Run{
+				ID:        "run-***",
+				IsDestroy: true,
 			},
 			statusChanges: []tfe.RunStatus{
 				tfe.RunPlanning,
@@ -187,6 +210,7 @@ func TestRunService_CreateRun(t *testing.T) {
 				Workspace:              tc.workspaceName,
 				Message:                "",
 				PlanOnly:               tc.tfeRun.PlanOnly,
+				IsDestroy:              tc.tfeRun.IsDestroy,
 				RunVariables:           []*tfe.RunVariable{},
 			})
 
