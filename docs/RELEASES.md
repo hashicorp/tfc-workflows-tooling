@@ -53,7 +53,7 @@ Markdown Examples:
 
 #### Preparing a release
 
-Find the latest release tag and compare with the main branch to fully understand the changes to be released. You can compare the last release tag with main with the following example for [GitHub](https://github.com/hashicorp/tfc-workflows-github/compare/v1.1.1...main).
+Find the latest release tag and compare with the main branch to fully understand the changes to be released. You can compare the last release tag with main with the following example for [tfc-workflows-github](https://github.com/hashicorp/tfc-workflows-github/compare/v1.1.1...main).
 
 For each meaningful change, check the following:
 1. Each change, except for documentation, is added to CHANGELOG.md.
@@ -98,7 +98,7 @@ Markdown Examples:
 
 #### Preparing a release
 
-Find the latest release tag and compare with the main branch to fully understand the changes to be released. You can compare the last release tag with main with the following [example](`https://github.com/hashicorp/tfc-workflows-github/compare/v1.1.1...main `).
+Find the latest release tag and compare with the main branch to fully understand the changes to be released. You can compare the last release tag with main with the following example for [tfc-workflows-gitlab](`https://github.com/hashicorp/tfc-workflows-gitlab/compare/v1.1.1...main `).
 
 For each meaningful change, check the following:
 1. Each change, except for documentation, is added to CHANGELOG.md.
