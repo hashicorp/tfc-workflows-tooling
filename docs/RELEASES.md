@@ -18,7 +18,7 @@ Prepare the changelog for a new release:
 1. Replace # Unreleased with the version you are missing.
 1. Ensure to add a new # Unreleased section at the top of the changelog for future changes. This will make it clearer to authors where to add their changelog entry.
 1. Ensure each existing changelog entry for the new release has the author(s) attributed and a pull request linked. i.e `- Some new feature/bugfix by @some-github-user (#3)[link-to-pull-request]`
-1. Open a pull request with these changes with a title similar to vX.XX.XX Changelog. Once approved and merged, you can go ahead and create the release.
+1. Open a pull request with these changes with a title similar to `vX.XX.XX Changelog`. Once approved and merged, you can go ahead and create the release.
 
 ### Creating a release
 
