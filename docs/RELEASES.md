@@ -1,6 +1,6 @@
 ## Release Process
 
-**TFCI** or **tfc-workflows-tooling** can be released as often as required. Changes such as documentation updates or test fixes, do NOT require a release. You can merge changes into main once they have passed CI and approved. As soon as new fixes and features are merged, a new release can be made. Once a new release has been made and is successful, a release will need to be created for [hashicorp/tfc-workflows-github](https://github.com/hashicorp/tfc-workflows-github) and [hashicorp/tfc-workflows-gitlab](https://github.com/hashicorp/tfc-workflows-gitlab) respectively.
+Changes such as documentation updates or test fixes, do NOT require a release. You can merge changes into main once they have passed CI and approved. As soon as new fixes and features are merged, a new release can be made. Once a new release has been made and is successful, a release will need to be created for [hashicorp/tfc-workflows-github](https://github.com/hashicorp/tfc-workflows-github) and [hashicorp/tfc-workflows-gitlab](https://github.com/hashicorp/tfc-workflows-gitlab) respectively.
 
 ### Preparing a release
 
