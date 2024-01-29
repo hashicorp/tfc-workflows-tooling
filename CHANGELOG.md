@@ -1,10 +1,10 @@
 # UNRELEASED
 
+# v1.2.0
+
 ## Enhancements
 * Add support for saved plans by @1newsr [#57](https://github.com/hashicorp/tfc-workflows-tooling/pull/57)
 * Adds support for Terraform destroy under `run create` command by @trutled3 [#80](https://github.com/hashicorp/tfc-workflows-tooling/pull/80)
-
-## Bug Fixes
 
 ## Additional changes
 * Adds the tfci binary to .gitignore [#81](https://github.com/hashicorp/tfc-workflows-tooling/pull/81)
