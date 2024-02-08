@@ -96,21 +96,21 @@ Usage: tfci [global options] upload [options]
 
 Global Options:
 
-	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
+	-hostname        The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token           The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization    Terraform Cloud Organization Name.
 
 Options:
 
-	-workspace      The name of the Terraform Cloud Workspace to create and upload the terraform configuration version in.
+	-workspace       The name of the Terraform Cloud Workspace to create and upload the terraform configuration version in.
 
-	-directory      Path to the terraform configuration files on disk.
+	-directory       Path to the terraform configuration files on disk.
 
-	-speculative    When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.
+	-speculative     When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.
 
-	-provisional    When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.
+	-provisional     When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.
 
 	-auto-queue-runs When true, runs are queued automatically when the configuration version is uploaded.
 	`
