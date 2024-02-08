@@ -16,10 +16,11 @@ import (
 
 type UploadConfigurationCommand struct {
 	*Meta
-	Workspace   string
-	Directory   string
-	Speculative bool
-	Provisional bool
+	Workspace     string
+	Directory     string
+	Speculative   bool
+	Provisional   bool
+	AutoQueueRuns bool
 }
 
 func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
@@ -29,6 +30,7 @@ func (c *UploadConfigurationCommand) flags() *flag.FlagSet {
 	f.StringVar(&c.Directory, "directory", "", "Path to the configuration files on disk.")
 	f.BoolVar(&c.Speculative, "speculative", false, "When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.")
 	f.BoolVar(&c.Provisional, "provisional", false, "When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.")
+	f.BoolVar(&c.AutoQueueRuns, "auto-queue-runs", false, "When true, runs are queued automatically when the configuration version is uploaded.")
 	return f
 }
 
@@ -55,6 +57,7 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 		ConfigurationDirectory: dirPath,
 		Speculative:            c.Speculative,
 		Provisional:            c.Provisional,
+		AutoQueueRuns:          c.AutoQueueRuns,
 	})
 
 	if cvError != nil {
@@ -108,6 +111,8 @@ Options:
 	-speculative    When true, this configuration version may only be used to create runs which are speculative, that is, can neither be confirmed nor applied.
 
 	-provisional    When true, this configuration version does not immediately become the workspace's current configuration until a run referencing it is ultimately applied.
+
+	-auto-queue-runs When true, runs are queued automatically when the configuration version is uploaded.
 	`
 	return strings.TrimSpace(helpText)
 }
