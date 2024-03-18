@@ -1,4 +1,5 @@
 # UNRELEASED
+* Add '-auto-queue-runs' option for tfci upload . AutoQueueRuns default as false in order to avoid breaking changes (contrary to API doc which defaults at true)
 
 # v1.2.0
 

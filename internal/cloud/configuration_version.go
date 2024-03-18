@@ -18,6 +18,7 @@ type UploadOptions struct {
 	ConfigurationDirectory string
 	Speculative            bool
 	Provisional            bool
+	AutoQueueRuns          bool
 }
 
 type ConfigVersionService interface {
@@ -39,7 +40,7 @@ func (service *configVersionService) UploadConfig(ctx context.Context, options U
 	configVersion, cvErr := service.tfe.ConfigurationVersions.Create(ctx, workspace.ID, tfe.ConfigurationVersionCreateOptions{
 		Speculative:   &options.Speculative,
 		Provisional:   &options.Provisional,
-		AutoQueueRuns: tfe.Bool(false),
+		AutoQueueRuns: &options.AutoQueueRuns,
 	})
 
 	if cvErr != nil {
