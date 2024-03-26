@@ -99,6 +99,28 @@ func TestRunService_CreateRun(t *testing.T) {
 			finalStatus: tfe.RunPlannedAndFinished,
 		},
 		{
+			name:          "target-run",
+			orgName:       "test",
+			workspaceName: "my-workspace",
+			ctx:           context.Background(),
+			tfeWorkspace:  &tfe.Workspace{ID: "ws-***"},
+			tfeConfigVersion: &tfe.ConfigurationVersion{
+				ID:     "cv-***",
+				Status: tfe.ConfigurationUploaded,
+			},
+			tfeRun: &tfe.Run{
+				ID:          "run-***",
+				TargetAddrs: []string{"aws_instance.foo", "aws_s3_bucket.bar"},
+			},
+			statusChanges: []tfe.RunStatus{
+				tfe.RunPlanning,
+				tfe.RunPlanning,
+				tfe.RunCostEstimated,
+				tfe.RunPolicyChecked,
+			},
+			finalStatus: tfe.RunPlannedAndFinished,
+		},
+		{
 			name:          "auto-apply-run",
 			orgName:       "test",
 			workspaceName: "my-workspace",
