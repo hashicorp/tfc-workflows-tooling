@@ -19,10 +19,27 @@ type CreateRunCommand struct {
 	Workspace              string
 	ConfigurationVersionID string
 	Message                string
+	TargetAddrs            []string
 
 	PlanOnly  bool
 	IsDestroy bool
 	SavePlan  bool
+}
+
+// flagStringSlice is a flag.Value implementation which allows collecting
+// multiple instances of a single flag into a slice. This is used for flags
+// such as -target=aws_instance.foo and -var x=y.
+type flagStringSlice []string
+
+var _ flag.Value = (*flagStringSlice)(nil)
+
+func (v *flagStringSlice) String() string {
+	return ""
+}
+func (v *flagStringSlice) Set(raw string) error {
+	*v = append(*v, raw)
+
+	return nil
 }
 
 func (c *CreateRunCommand) flags() *flag.FlagSet {
@@ -33,6 +50,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
+	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "The Terraform address to target.")
 	return f
 }
 
