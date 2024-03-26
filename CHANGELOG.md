@@ -1,5 +1,8 @@
 # UNRELEASED
 
+## Enhancements
+* Adds support for Terraform target under `run create` command by @trutled3 [#97](https://github.com/hashicorp/tfc-workflows-tooling/pull/97)
+
 # v1.2.0
 
 ## Enhancements

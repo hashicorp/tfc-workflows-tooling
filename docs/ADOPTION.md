@@ -39,6 +39,7 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 | Plan       |  `terraform plan`                   |  commands: `upload`, `run create`              |
 | Apply      |  `terraform apply -auto-approve`    |  commands: `upload`,  `run create`, `run apply`|
 | Destroy    |  `terraform plan -destroy -out=destroy.tfplan` , `terraform apply destroy.tfplan`| commands: `run create -is-destroy=true` |
+| Target     | `terraform plan -target aws_instance.foo` | commands: `run create -target=aws_instance.foo` |
 
 #### Terraform Plan
 
@@ -47,6 +48,7 @@ Terraform Cloud CLI can execute a new plan with one command that will upload Ter
 With Tfci and Terraform Cloud API driven runs, these actions are broken up into multiple parts:
 - Upload terraform configuration as a ConfigurationVersion
 - Create a new run using that Configuration Version. If the run was not specified as `plan-only`, then it could be optionally approved or applied.
+- Focus Terraform's attention on only a subset of resources with the `target` option.
 
 #### Terraform Apply
 
