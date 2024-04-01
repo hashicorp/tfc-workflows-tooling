@@ -34,7 +34,7 @@ type flagStringSlice []string
 var _ flag.Value = (*flagStringSlice)(nil)
 
 func (v *flagStringSlice) String() string {
-	return ""
+	return strings.Join(*v, ",")
 }
 func (v *flagStringSlice) Set(raw string) error {
 	*v = append(*v, raw)
@@ -50,7 +50,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
-	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times toinclude more than one object. This is for exceptional use only.")
+	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times to include more than one object. This is for exceptional use only. e.g. -target=aws_s3_bucket.foo")
 	return f
 }
 
