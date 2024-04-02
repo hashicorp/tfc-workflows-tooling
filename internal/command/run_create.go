@@ -37,7 +37,8 @@ func (v *flagStringSlice) String() string {
 	return strings.Join(*v, ",")
 }
 func (v *flagStringSlice) Set(raw string) error {
-	*v = append(*v, raw)
+	targetSegments := strings.Split(raw, ",")
+	*v = append(*v, targetSegments...)
 
 	return nil
 }
