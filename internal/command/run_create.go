@@ -19,10 +19,28 @@ type CreateRunCommand struct {
 	Workspace              string
 	ConfigurationVersionID string
 	Message                string
+	TargetAddrs            []string
 
 	PlanOnly  bool
 	IsDestroy bool
 	SavePlan  bool
+}
+
+// flagStringSlice is a flag.Value implementation which allows collecting
+// multiple instances of a single flag into a slice. This is used for flags
+// such as -target=aws_instance.foo and -var x=y.
+type flagStringSlice []string
+
+var _ flag.Value = (*flagStringSlice)(nil)
+
+func (v *flagStringSlice) String() string {
+	return strings.Join(*v, ",")
+}
+func (v *flagStringSlice) Set(raw string) error {
+	targetSegments := strings.Split(raw, ",")
+	*v = append(*v, targetSegments...)
+
+	return nil
 }
 
 func (c *CreateRunCommand) flags() *flag.FlagSet {
@@ -33,6 +51,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
+	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times to include more than one object. This is for exceptional use only. e.g. -target=aws_s3_bucket.foo")
 	return f
 }
 
@@ -57,6 +76,7 @@ func (c *CreateRunCommand) Run(args []string) int {
 		IsDestroy:              c.IsDestroy,
 		SavePlan:               c.SavePlan,
 		RunVariables:           runVars,
+		TargetAddrs:            c.TargetAddrs,
 	})
 	if run != nil {
 		c.readPlanLogs(run)
@@ -159,6 +179,8 @@ Options:
 	-plan-only              Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.
 
 	-save-plan              Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.
+	-is-destroy				Specifies whether to create a destroy run.
+	-target					Focuses Terraform's attention on only a subset of resources and their dependencies. This option accepts multiple instances by providing additional target option flags.
 	`
 	return strings.TrimSpace(helpText)
 }

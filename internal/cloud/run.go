@@ -61,6 +61,7 @@ type CreateRunOptions struct {
 	IsDestroy              bool
 	SavePlan               bool
 	RunVariables           []*tfe.RunVariable
+	TargetAddrs            []string
 }
 
 type ApplyRunOptions struct {
@@ -161,6 +162,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	createOpts.IsDestroy = tfe.Bool(options.IsDestroy)
 	createOpts.SavePlan = tfe.Bool(options.SavePlan)
 	createOpts.Variables = options.RunVariables
+	createOpts.TargetAddrs = options.TargetAddrs
 
 	// create the run
 	run, err := service.tfe.Runs.Create(ctx, createOpts)
