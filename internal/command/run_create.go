@@ -37,6 +37,10 @@ func (v *flagStringSlice) String() string {
 	return strings.Join(*v, ",")
 }
 func (v *flagStringSlice) Set(raw string) error {
+	// omit if `--target=` or `--target=""`
+	if raw == "" {
+		return nil
+	}
 	targetSegments := strings.Split(raw, ",")
 	*v = append(*v, targetSegments...)
 
