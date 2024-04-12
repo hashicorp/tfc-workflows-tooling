@@ -1,7 +1,12 @@
 # UNRELEASED
 
+# v1.3.0
+
 ## Enhancements
 * Adds support for Terraform target under `run create` command by @trutled3 [#97](https://github.com/hashicorp/tfc-workflows-tooling/pull/97)
+
+## Bug Fixes
+* Fixes an issue with recently added target argument for `run create` command by @mjyocca [#101](https://github.com/hashicorp/tfc-workflows-tooling/pull/101)
 
 # v1.2.0
 
