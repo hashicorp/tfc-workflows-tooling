@@ -16,11 +16,13 @@ type ShowRunCommand struct {
 	*Meta
 
 	RunID string
+	Wait  bool
 }
 
 func (c *ShowRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run show")
 	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to show.")
+	f.BoolVar(&c.Wait, "wait", false, "Specifies whether to wait until run completes successfully or results in an error.")
 
 	return f
 }
@@ -40,7 +42,12 @@ func (c *ShowRunCommand) Run(args []string) int {
 	// fetch run
 	run, err := c.cloud.GetRun(c.appCtx, cloud.GetRunOptions{
 		RunID: c.RunID,
+		Wait:  c.Wait,
 	})
+
+	if run != nil && c.Wait {
+		c.readPlanLogs(run)
+	}
 
 	if err != nil {
 		status := c.resolveStatus(err)
@@ -55,6 +62,23 @@ func (c *ShowRunCommand) Run(args []string) int {
 	c.addRunDetails(run)
 	c.writer.OutputResult(c.closeOutput())
 	return 0
+}
+
+func (c *ShowRunCommand) readPlanLogs(run *tfe.Run) {
+	// Pre Plan task stages
+	c.cloud.LogTaskStage(c.appCtx, run, tfe.PrePlan)
+	// Plan
+	if pLogErr := c.cloud.GetPlanLogs(c.appCtx, run.Plan.ID); pLogErr != nil {
+		c.writer.ErrorResult(fmt.Sprintf("failed to read plan logs: %s", pLogErr.Error()))
+	}
+	// Post Plan task stages
+	c.cloud.LogTaskStage(c.appCtx, run, tfe.PostPlan)
+	// cost estimation
+	c.cloud.LogCostEstimation(c.appCtx, run)
+	// sentinel policies
+	if policyLogErr := c.cloud.GetPolicyCheckLogs(c.appCtx, run); policyLogErr != nil {
+		c.writer.ErrorResult(fmt.Sprintf("failed to read policy check logs: %s", policyLogErr.Error()))
+	}
 }
 
 func (c *ShowRunCommand) addRunDetails(run *tfe.Run) {

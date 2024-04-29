@@ -24,6 +24,7 @@ type CreateRunCommand struct {
 	PlanOnly  bool
 	IsDestroy bool
 	SavePlan  bool
+	Wait      bool
 }
 
 // flagStringSlice is a flag.Value implementation which allows collecting
@@ -56,6 +57,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
 	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times to include more than one object. This is for exceptional use only. e.g. -target=aws_s3_bucket.foo")
+	f.BoolVar(&c.Wait, "wait", true, "Specifies whether to wait until run completes successfully or results in an error.")
 	return f
 }
 
@@ -81,8 +83,9 @@ func (c *CreateRunCommand) Run(args []string) int {
 		SavePlan:               c.SavePlan,
 		RunVariables:           runVars,
 		TargetAddrs:            c.TargetAddrs,
+		Wait:                   c.Wait,
 	})
-	if run != nil {
+	if run != nil && c.Wait {
 		c.readPlanLogs(run)
 	}
 

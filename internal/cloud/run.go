@@ -62,6 +62,7 @@ type CreateRunOptions struct {
 	SavePlan               bool
 	RunVariables           []*tfe.RunVariable
 	TargetAddrs            []string
+	Wait                   bool
 }
 
 type ApplyRunOptions struct {
@@ -71,6 +72,7 @@ type ApplyRunOptions struct {
 
 type GetRunOptions struct {
 	RunID string
+	Wait  bool
 }
 
 type DiscardRunOptions struct {
@@ -83,6 +85,9 @@ type CancelRunOptions struct {
 	Comment     string
 	ForceCancel bool
 }
+
+// Compile-time proof of interface implementation.
+var _ RunService = (*runService)(nil)
 
 type RunService interface {
 	RunLink(context.Context, string, *tfe.Run) (string, error)
@@ -124,6 +129,41 @@ func (service *runService) GetRun(ctx context.Context, options GetRunOptions) (*
 		log.Printf("[ERROR] error reading run: %q error: %s", options.RunID, err)
 		return nil, err
 	}
+	if !options.Wait {
+		return run, nil
+	}
+
+	costEstimateEnabled, policyChecksEnabled := hasCostEstimate(run), hasPolicyChecks(run)
+	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
+
+	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
+		log.Printf("[DEBUG] Monitoring run status...")
+		r, err := service.GetRun(ctx, GetRunOptions{
+			RunID: run.ID,
+		})
+		// update run
+		run = r
+
+		if err != nil {
+			return err
+		}
+
+		service.writer.Output(fmt.Sprintf("Run Status: %q", run.Status))
+
+		done, err := isRunComplete(r, desiredStatus, NoopStatus)
+		if err != nil {
+			return err
+		}
+
+		if done {
+			return nil
+		}
+		return retryableTimeoutError("show run ")
+	})
+	if retryErr != nil {
+		return run, retryErr
+	}
+
 	return run, nil
 }
 
@@ -137,8 +177,15 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 		return nil, err
 	}
 
+	// TODO: log stats/state of the workspace
+	// could be a pileup of a lot of runs that are queued
+	// possibly workspace discard-all cmd/action to discard all previous pending/planned runs
 	if w.Locked && !options.PlanOnly {
-		return nil, errors.New("run has been specified as non-speculative and the workspace is currently locked")
+		// defaults to true, prevents stuck CI runs waitin on dismissing/approving previous run
+		if options.Wait {
+			return nil, errors.New("run has been specified as non-speculative and the workspace is currently locked")
+		}
+		log.Printf("[WARN] workspace is currently locked prior to creating a new run")
 	}
 
 	if options.ConfigurationVersionID != "" {
@@ -178,6 +225,11 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	desiredStatus := getDesiredRunStatus(run, policyChecksEnabled, costEstimateEnabled)
 
 	log.Printf("[DEBUG] PlanOnly: %t, AutoApply: %t, CostEstimation: %t, PolicyChecks: %t", run.PlanOnly, run.AutoApply, costEstimateEnabled, policyChecksEnabled)
+
+	// explicitly set to not wait/poll, return run
+	if !options.Wait {
+		return run, err
+	}
 
 	retryErr := retry.Do(ctx, defaultBackoff(), func(ctx context.Context) error {
 		log.Printf("[DEBUG] Monitoring run status...")
