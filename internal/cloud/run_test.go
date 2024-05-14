@@ -7,9 +7,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"go.uber.org/mock/gomock"
 )
 
 type createRunTestCase struct {
@@ -186,7 +186,7 @@ func TestRunService_CreateRun(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			goMockCalls := []*gomock.Call{}
+			goMockCalls := []any{}
 
 			readOptions := &tfe.RunReadOptions{
 				Include: []tfe.RunIncludeOpt{

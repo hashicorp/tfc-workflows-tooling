@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
+	"go.uber.org/mock/gomock"
 )
 
 func TestUpload(t *testing.T) {
