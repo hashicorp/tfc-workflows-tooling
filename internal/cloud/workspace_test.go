@@ -8,11 +8,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-tfe"
 	"github.com/hashicorp/go-tfe/mocks"
 	"github.com/hashicorp/tfci/internal/writer"
 	"github.com/mitchellh/cli"
+	"go.uber.org/mock/gomock"
 )
 
 func TestWorkspaceService_ReadStateOutputs(t *testing.T) {
