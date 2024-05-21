@@ -71,9 +71,9 @@ Global Options:
 
 	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token          The token used to authenticate with HCP Terraform. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization   HCP Terraform Organization Name.
 
 Options:
 

@@ -1,6 +1,6 @@
-# Terraform Cloud Workflows Tooling
+# HCP Terraform Workflows Tooling
 
-Terraform Cloud Workflows Tooling is a dockerized go application to automate Terraform Cloud Runs via the API.
+HCP Terraform Workflows Tooling is a dockerized go application to automate HCP Terraform Runs via the API.
 
 ## Supported Platforms
 

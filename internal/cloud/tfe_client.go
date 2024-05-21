@@ -44,7 +44,7 @@ func NewTfeClient(hostFlag string, tokenFlag string, platform string) (*tfe.Clie
 		}
 	}
 
-	log.Printf("[DEBUG] Initializing terraform cloud client, host: %s", host)
+	log.Printf("[DEBUG] Initializing HCP Terraform client, host: %s", host)
 
 	token := tokenFlag
 	if tokenFlag == "" {
@@ -59,7 +59,7 @@ func NewTfeClient(hostFlag string, tokenFlag string, platform string) (*tfe.Clie
 	tfeConfig.Token = token
 
 	if tfeConfig.Token == "" {
-		return nil, fmt.Errorf("terraform cloud API token is not set")
+		return nil, fmt.Errorf("HCP Terraform API token is not set")
 	}
 
 	log.Printf("[DEBUG] token has been set")

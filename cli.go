@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	hostnameFlag     = flag.String("hostname", "", "The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to Terraform Cloud (app.terraform.io)")
-	tokenFlag        = flag.String("token", "", "The token used to authenticate with Terraform Cloud. Defaults to reading `TF_API_TOKEN` environment variable")
-	organizationFlag = flag.String("organization", "", "Terraform Cloud Organization Name")
+	hostnameFlag     = flag.String("hostname", "", "The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to HCP Terraform (app.terraform.io)")
+	tokenFlag        = flag.String("token", "", "The token used to authenticate with HCP Terraform. Defaults to reading `TF_API_TOKEN` environment variable")
+	organizationFlag = flag.String("organization", "", "HCP Terraform Organization Name")
 )
 
 func newCliRunner() (*cli.CLI, error) {
@@ -46,7 +46,7 @@ func newCliRunner() (*cli.CLI, error) {
 
 	tfe, err := cloud.NewTfeClient(*hostnameFlag, *tokenFlag, string(env.PlatformType))
 	if err != nil {
-		log.Printf("[ERROR] Could not initialize terraform cloud client, error: %#v", err)
+		log.Printf("[ERROR] Could not initialize HCP Terraform client, error: %#v", err)
 		return nil, err
 	}
 

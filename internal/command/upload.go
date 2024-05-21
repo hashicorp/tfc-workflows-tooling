@@ -61,7 +61,7 @@ func (c *UploadConfigurationCommand) Run(args []string) int {
 		status := c.resolveStatus(cvError)
 		c.addOutput("status", string(status))
 		c.addConfigurationDetails(configVersion)
-		c.writer.ErrorResult(fmt.Sprintf("error uploading configuration version to Terraform Cloud: %s", cvError.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error uploading configuration version to HCP Terraform: %s", cvError.Error()))
 		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
@@ -95,13 +95,13 @@ Global Options:
 
 	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token          The token used to authenticate with HCP Terraform. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization   HCP Terraform Organization Name.
 
 Options:
 
-	-workspace      The name of the Terraform Cloud Workspace to create and upload the terraform configuration version in.
+	-workspace      The name of the HCP Terraform Workspace to create and upload the terraform configuration version in.
 
 	-directory      Path to the terraform configuration files on disk.
 

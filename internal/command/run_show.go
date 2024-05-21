@@ -20,7 +20,7 @@ type ShowRunCommand struct {
 
 func (c *ShowRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run show")
-	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to show.")
+	f.StringVar(&c.RunID, "run", "", "Existing HCP Terraform Run ID to show.")
 
 	return f
 }
@@ -46,7 +46,7 @@ func (c *ShowRunCommand) Run(args []string) int {
 		status := c.resolveStatus(err)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.writer.ErrorResult(fmt.Sprintf("error showing run, '%s' in Terraform Cloud: %s", c.RunID, err.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error showing run, '%s' in HCP Terraform: %s", c.RunID, err.Error()))
 		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
@@ -92,23 +92,23 @@ func (c *ShowRunCommand) Help() string {
 	helpText := `
 Usage: tfci [global options] run show [options]
 
-	Returns run details for the provided Terraform Cloud run ID.
+	Returns run details for the provided HCP Terraform run ID.
 
 Global Options:
 
 	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token          The token used to authenticate with HCP Terraform. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization   HCP Terraform Organization Name.
 
 Options:
 
-	-run            Existing Terraform Cloud Run ID to show.
+	-run            Existing HCP Terraform Run ID to show.
 	`
 	return strings.TrimSpace(helpText)
 }
 
 func (c *ShowRunCommand) Synopsis() string {
-	return "Returns run details for the provided Terraform Cloud run ID"
+	return "Returns run details for the provided HCP Terraform run ID"
 }

@@ -22,7 +22,7 @@ type CancelRunCommand struct {
 
 func (c *CancelRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run cancel")
-	f.StringVar(&c.RunID, "run", "", "Existing Terraform Cloud Run ID to Discard.")
+	f.StringVar(&c.RunID, "run", "", "Existing HCP Terraform Run ID to Discard.")
 	f.StringVar(&c.Comment, "comment", "", "An optional comment about the run.")
 	f.BoolVar(&c.ForceCancel, "force-cancel", false, "Ends the run immediately.")
 
@@ -82,7 +82,7 @@ func (c *CancelRunCommand) Run(args []string) int {
 		status := c.resolveStatus(cancelErr)
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
-		c.writer.ErrorResult(fmt.Sprintf("error discarding run, '%s' in Terraform Cloud: %s", c.RunID, cancelErr.Error()))
+		c.writer.ErrorResult(fmt.Sprintf("error discarding run, '%s' in HCP Terraform: %s", c.RunID, cancelErr.Error()))
 		c.writer.OutputResult(c.closeOutput())
 		return 1
 	}
@@ -115,13 +115,13 @@ Global Options:
 
 	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token          The token used to authenticate with HCP Terraform. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization   HCP Terraform Organization Name.
 
 Options:
 
-  -run            Existing Terraform Cloud Run ID to Discard.
+  -run            Existing HCP Terraform Run ID to Discard.
 
 	-comment        An optional comment about the run.
 

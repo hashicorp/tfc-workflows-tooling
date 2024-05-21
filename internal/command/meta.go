@@ -33,7 +33,7 @@ type Writer interface {
 }
 
 type Meta struct {
-	// Organization for Terraform Cloud installation
+	// Organization for HCP Terraform installation
 	organization string
 	// parent context
 	appCtx context.Context
