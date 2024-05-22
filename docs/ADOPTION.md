@@ -32,9 +32,9 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 
 ## Workflow
 
-### [Terraform Cloud CLI](https://developer.hashicorp.com/terraform/cloud-docs/run/cli) vs. [Terraform Cloud API](https://developer.hashicorp.com/terraform/cloud-docs/run/api)
+### [HCP Terraform CLI](https://developer.hashicorp.com/terraform/cloud-docs/run/cli) vs. [HCP Terraform API](https://developer.hashicorp.com/terraform/cloud-docs/run/api)
 
-| Workflow   |    Terraform CLI (Cloud)            |  TFCI/Terraform Cloud API                      |
+| Workflow   |    Terraform CLI (Cloud)            |  TFCI/HCP Terraform API                      |
 |------------|-------------------------------------|------------------------------------------------|
 | Plan       |  `terraform plan`                   |  commands: `upload`, `run create`              |
 | Apply      |  `terraform apply -auto-approve`    |  commands: `upload`,  `run create`, `run apply`|
@@ -43,27 +43,27 @@ View the GitLab [Base-Template](https://github.com/hashicorp/tfc-workflows-gitla
 
 #### Terraform Plan
 
-Terraform Cloud CLI can execute a new plan with one command that will upload Terraform configuration and execute a new run in Terraform Cloud.
+HCP Terraform CLI can execute a new plan with one command that will upload Terraform configuration and execute a new run in HCP Terraform.
 
-With Tfci and Terraform Cloud API driven runs, these actions are broken up into multiple parts:
+With Tfci and HCP Terraform API driven runs, these actions are broken up into multiple parts:
 - Upload terraform configuration as a ConfigurationVersion
 - Create a new run using that Configuration Version. If the run was not specified as `plan-only`, then it could be optionally approved or applied.
 - Focus Terraform's attention on only a subset of resources with the `target` option.
 
 #### Terraform Apply
 
-Terraform Cloud CLI can execute an apply run with, `terraform apply` that will also upload the configuration and start a new Terraform Cloud run that will plan and apply.
+HCP Terraform CLI can execute an apply run with, `terraform apply` that will also upload the configuration and start a new HCP Terraform run that will plan and apply.
 
-With Tfci and Terraform Cloud API driven runs:
+With Tfci and HCP Terraform API driven runs:
 - Upload terraform configuration as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
 
 #### Terraform Destroy
 
-Terraform Cloud CLI can execute a destroy run with, `terraform plan -destroy -out=destroy.tfplan` followed by `terraform apply destroy.tfplan`, that will also upload the configuration and start a new Terraform Cloud run that will plan and destroy.
+HCP Terraform CLI can execute a destroy run with, `terraform plan -destroy -out=destroy.tfplan` followed by `terraform apply destroy.tfplan`, that will also upload the configuration and start a new HCP Terraform run that will plan and destroy.
 
-With Tfci and Terraform Cloud API driven runs:
+With Tfci and HCP Terraform API driven runs:
 - Upload terraform configuration as a ConfigurationVersion
 - New plan run executes
 - If plan phase was successful, an apply can be confirmed to proceed
@@ -84,7 +84,7 @@ Steps:
 1. Pull request/Merge request is opened and triggers the workflow.
 1. Pipeline runner checkouts the branch with the included changes
 1. Upload Configuration, optionally mark it as `speculative` so the same configuration version cannot be applied.
-1. A new run starts in Terraform Cloud for the uploaded ConfigurationVersion, specifying the run as `plan-only`. This creates a speculative run that does not lock the workspace.
+1. A new run starts in HCP Terraform for the uploaded ConfigurationVersion, specifying the run as `plan-only`. This creates a speculative run that does not lock the workspace.
 1. Results of the run and plan is presented to the user, such as a comment on PR/Merge request.
 
 
@@ -97,7 +97,7 @@ Steps:
 Steps:
 1. Code is merged into the default main branch or branch used for a separate environment such as "staging".
 1. Pipeline runner checks out the merged code.
-1. Configuration is uploaded to Terraform Cloud.
-1. A new run starts in Terraform Cloud for the uploaded ConfigurationVersion.
+1. Configuration is uploaded to HCP Terraform.
+1. A new run starts in HCP Terraform for the uploaded ConfigurationVersion.
 1. If the plan was successful, confirm the run by running `run apply --run={previous run id}`, that will then apply the changes
 1. Optionally output the apply results as a summary.

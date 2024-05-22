@@ -3,8 +3,8 @@
 ## Available Commands
 
 * `upload`: Creates and uploads configuration files for a given workspace
-* `run show`: Returns run details for the provided Terraform Cloud Run ID.
-* `run create`: Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables.
+* `run show`: Returns run details for the provided HCP Terraform Run ID.
+* `run create`: Performs a new plan run in HCP Terraform, using a configuration version and the workspace's current variables.
 * `run apply`: Applies a run that is paused waiting for confirmation after a plan.
 * `run discard`: Skips any remaining work on runs that are paused waiting for confirmation or priority.
 * `run cancel`: Interrupts a run that is currently planning or applying.
@@ -45,9 +45,9 @@ Tfci requires that the following values be passed in as environment variables fr
 
 | ENV Var Name      | Default            | Flag            |  Description                                                                                                     |
 | ----------------- |--------------------|-----------------| ---------------------------------------------------------------------------------------------------------------- |
-| `TF_HOSTNAME`     | `app.terraform.io` |  `--hostname`     | The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to Terraform Cloud. |
-| `TF_API_TOKEN`    | `n/a`              |  `--token`        | The token used to authenticate with Terraform Cloud. [API Token Docs](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/api-tokens)                                                           |
-| `TF_CLOUD_ORGANIZATION` | `n/a`              |  `--organization` | The name of the organization in Terraform Cloud.                                                                 |
+| `TF_HOSTNAME`     | `app.terraform.io` |  `--hostname`     | The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to HCP Terraform. |
+| `TF_API_TOKEN`    | `n/a`              |  `--token`        | The token used to authenticate with HCP Terraform. [API Token Docs](https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/api-tokens)                                                           |
+| `TF_CLOUD_ORGANIZATION` | `n/a`              |  `--organization` | The name of the organization in HCP Terraform.                                                                 |
 | `TF_MAX_TIMEOUT`  | `1h`               |  N/A            | Max wait timeout to wait for actions to reach desired or errored state. ex: `1h30`, `30m`                                         |
 | `TF_VAR_*`        | `n/a`              |  N/A            | Only applicable for create-run action. Note: strings must be escaped. ex: `TF_VAR_image_id="\"ami-abc123\""`. All values must be expressed as an HCL literal in the same syntax you would use when writing Terraform code. [Create Run API Docs](https://developer.hashicorp.com/terraform/cloud-docs/api-docs/run#create-a-run)                                 |
 | `TF_LOG`          | `OFF`              |  N/A            | Debugging log level options: `OFF`, `ERROR`, `INFO`, `DEBUG`                                                     |
@@ -107,7 +107,7 @@ docker run -it --rm \
 hashicorp/tfci:latest \
 tfci upload --workspace=api-workspace --directory=./terraform
 ```
-Since the bind mount is between the host project root directory and container working directory, you can pass the the relative path to the configuration you wish to upload to Terraform Cloud.
+Since the bind mount is between the host project root directory and container working directory, you can pass the the relative path to the configuration you wish to upload to HCP Terraform.
 
 ### Piping Json Output
 

@@ -111,7 +111,7 @@ func (service *runService) RunLink(ctx context.Context, organization string, run
 	}
 	url := service.tfe.BaseURL()
 	link := fmt.Sprintf("%s://%s/app/%s/workspaces/%s/runs/%s", url.Scheme, url.Host, organization, tfWorkspace.Name, run.ID)
-	service.writer.Output(fmt.Sprintf("View Run in Terraform Cloud: %s", link))
+	service.writer.Output(fmt.Sprintf("View Run in HCP Terraform: %s", link))
 
 	return link, nil
 }
@@ -168,7 +168,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 	run, err := service.tfe.Runs.Create(ctx, createOpts)
 
 	if err != nil {
-		log.Printf("[ERROR] error creating run in Terraform Cloud: %s", err)
+		log.Printf("[ERROR] error creating run in HCP Terraform: %s", err)
 		return nil, err
 	}
 

@@ -1,5 +1,8 @@
 # UNRELEASED
 
+## Notes
+* Updates documentation and references from "Terraform Cloud" to "HCP Terraform" by @mjyocca [#107](https://github.com/hashicorp/tfc-workflows-tooling/pull/107)
+
 # v1.3.0
 
 ## Enhancements

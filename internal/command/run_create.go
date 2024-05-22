@@ -49,10 +49,10 @@ func (v *flagStringSlice) Set(raw string) error {
 
 func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f := c.flagSet("run create")
-	f.StringVar(&c.Workspace, "workspace", "", "The name of the Terraform Cloud Workspace.")
+	f.StringVar(&c.Workspace, "workspace", "", "The name of the HCP Terraform Workspace.")
 	f.StringVar(&c.ConfigurationVersionID, "configuration_version", "", "The Configuration Version ID to use for this run.")
 	f.StringVar(&c.Message, "message", "", "Specifies the message to be associated with this run. A default message will be set.")
-	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.")
+	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a HCP Terraform speculative, plan-only run that cannot be applied.")
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
 	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times to include more than one object. This is for exceptional use only. e.g. -target=aws_s3_bucket.foo")
@@ -88,7 +88,7 @@ func (c *CreateRunCommand) Run(args []string) int {
 
 	if runError != nil {
 		status := c.resolveStatus(runError)
-		errMsg := fmt.Sprintf("error while creating run in Terraform Cloud: %s", runError.Error())
+		errMsg := fmt.Sprintf("error while creating run in HCP Terraform: %s", runError.Error())
 		c.addOutput("status", string(status))
 		c.addRunDetails(run)
 		c.writer.ErrorResult(errMsg)
@@ -153,34 +153,34 @@ func (c *CreateRunCommand) readPlanLogs(run *tfe.Run) {
 
 func (c *CreateRunCommand) defaultRunMessage() string {
 	if c.env.Context != nil {
-		return fmt.Sprintf("Triggered from Terraform Cloud CI by Author (%s) for SHA (%s)", c.env.Context.Author(), c.env.Context.SHAShort())
+		return fmt.Sprintf("Triggered from HCP Terraform CI by Author (%s) for SHA (%s)", c.env.Context.Author(), c.env.Context.SHAShort())
 	}
-	return `Triggered from Terraform Cloud CI`
+	return `Triggered from HCP Terraform CI`
 }
 
 func (c *CreateRunCommand) Help() string {
 	helpText := `
 Usage: tfci [global options] run create [options]
 
-	Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables.
+	Performs a new plan run in HCP Terraform, using a configuration version and the workspace's current variables.
 
 Global Options:
 
 	-hostname       The hostname of a Terraform Enterprise installation, if using Terraform Enterprise. Defaults to "app.terraform.io".
 
-	-token          The token used to authenticate with Terraform Cloud. Defaults to reading "TF_API_TOKEN" environment variable.
+	-token          The token used to authenticate with HCP Terraform. Defaults to reading "TF_API_TOKEN" environment variable.
 
-	-organization   Terraform Cloud Organization Name.
+	-organization   HCP Terraform Organization Name.
 
 Options:
 
-	-workspace              The name of the Terraform Cloud Workspace.
+	-workspace              The name of the HCP Terraform Workspace.
 
 	-configuration_version  The Configuration Version ID to use for this run.
 
 	-message                Specifies the message to be associated with this run. A default message will be set.
 
-	-plan-only              Specifies if this is a Terraform Cloud speculative, plan-only run that cannot be applied.
+	-plan-only              Specifies if this is a HCP Terraform speculative, plan-only run that cannot be applied.
 
 	-save-plan              Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.
 	-is-destroy				Specifies whether to create a destroy run.
@@ -190,5 +190,5 @@ Options:
 }
 
 func (c *CreateRunCommand) Synopsis() string {
-	return "Performs a new plan run in Terraform Cloud, using a configuration version and the workspace's current variables"
+	return "Performs a new plan run in HCP Terraform, using a configuration version and the workspace's current variables"
 }
