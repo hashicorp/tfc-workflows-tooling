@@ -2,6 +2,7 @@
 
 ## Notes
 * Updates documentation and references from "Terraform Cloud" to "HCP Terraform" by @mjyocca [#107](https://github.com/hashicorp/tfc-workflows-tooling/pull/107)
+* Compiles for Linux regardless of current CPU architecture when using the provided Dockerfile by @ggambetti [#113](https://github.com/hashicorp/tfc-workflows-tooling/pull/113)
 
 # v1.3.0
 
