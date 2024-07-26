@@ -78,7 +78,7 @@ As part of the initiative for this project and Tfci, we prescribe the following 
 
 *This is a plan-only run. It is generally used on a Pull/Merge Request.*
 
-[Example speculative run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/terraform-cloud.speculative-run.workflow.yml)
+[Example speculative run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/hcp-terraform.speculative-run.workflow.yml)
 
 Steps:
 1. Pull request/Merge request is opened and triggers the workflow.
@@ -92,7 +92,7 @@ Steps:
 
 *This is a run that is both planned and applied. It is generally recommended on merges.*
 
-[Example apply-run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/terraform-cloud.apply-run.workflow.yml)
+[Example apply-run created for GitHub Actions](https://github.com/hashicorp/tfc-workflows-github/blob/main/workflow-templates/hcp-terraform.apply-run.workflow.yml)
 
 Steps:
 1. Code is merged into the default main branch or branch used for a separate environment such as "staging".
