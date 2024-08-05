@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-tfe v1.60.0
 	github.com/mitchellh/cli v1.1.5
-	github.com/sethvargo/go-retry v0.2.4
+	github.com/sethvargo/go-retry v0.3.0
 	go.uber.org/mock v0.4.0
 )
 
