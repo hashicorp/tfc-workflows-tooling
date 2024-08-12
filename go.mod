@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-tfe v1.60.0
+	github.com/hashicorp/go-tfe v1.62.0
 	github.com/mitchellh/cli v1.1.5
 	github.com/sethvargo/go-retry v0.2.4
 	go.uber.org/mock v0.4.0
@@ -26,7 +26,7 @@ require (
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/go-slug v0.15.0 // indirect
-	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/jsonapi v1.3.1
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
