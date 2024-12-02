@@ -510,6 +510,7 @@ func getDesiredRunStatus(run *tfe.Run, policyChecksEnabled bool, costEstimateEna
 		tfe.RunPolicySoftFailed,
 		tfe.RunPlannedAndFinished,
 		tfe.RunApplied,
+		tfe.RunPostPlanCompleted,
 	}
 
 	if run.SavePlan {
