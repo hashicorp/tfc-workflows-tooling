@@ -1,6 +1,8 @@
 # UNRELEASED
 
-## Notes
+# v1.3.2
+
+## Bug Fixes
 * Fix issue with `run create` command not handling post-plan status by @sam-mosleh [#137](https://github.com/hashicorp/tfc-workflows-tooling/pull/137)
 
 # v1.3.1
