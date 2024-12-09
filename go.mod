@@ -1,6 +1,6 @@
 module github.com/hashicorp/tfci
 
-go 1.18
+go 1.23
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
