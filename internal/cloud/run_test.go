@@ -44,6 +44,7 @@ func testGenerateServiceMocks(t *testing.T, ctrl *gomock.Controller, tc createRu
 		Workspace:            tc.tfeWorkspace,
 		PlanOnly:             tfe.Bool(tc.tfeRun.PlanOnly),
 		IsDestroy:            tfe.Bool(tc.tfeRun.IsDestroy),
+		Refresh:              tfe.Bool(tc.tfeRun.Refresh),
 		SavePlan:             tfe.Bool(tc.tfeRun.SavePlan),
 		Message:              tfe.String(""),
 		Variables:            []*tfe.RunVariable{},
@@ -166,6 +167,33 @@ func TestRunService_CreateRun(t *testing.T) {
 				PolicyChecks: []*tfe.PolicyCheck{
 					{ID: "pol-****"},
 				},
+			},
+			statusChanges: []tfe.RunStatus{
+				tfe.RunPlanning,
+				tfe.RunPlanned,
+				tfe.RunCostEstimated,
+			},
+			finalStatus: tfe.RunPolicyChecked,
+		},
+		{
+			name:          "no-refresh-run",
+			orgName:       "test",
+			workspaceName: "my-workspace",
+			ctx:           context.Background(),
+			tfeWorkspace:  &tfe.Workspace{ID: "ws-***"},
+			tfeConfigVersion: &tfe.ConfigurationVersion{
+				ID:     "cv-***",
+				Status: tfe.ConfigurationUploaded,
+			},
+			tfeRun: &tfe.Run{
+				ID: "run-***",
+				CostEstimate: &tfe.CostEstimate{
+					ID: "cost-******",
+				},
+				PolicyChecks: []*tfe.PolicyCheck{
+					{ID: "pol-****"},
+				},
+				Refresh: false,
 			},
 			statusChanges: []tfe.RunStatus{
 				tfe.RunPlanning,

@@ -23,6 +23,7 @@ type CreateRunCommand struct {
 
 	PlanOnly  bool
 	IsDestroy bool
+	Refresh   bool
 	SavePlan  bool
 }
 
@@ -55,6 +56,7 @@ func (c *CreateRunCommand) flags() *flag.FlagSet {
 	f.BoolVar(&c.PlanOnly, "plan-only", false, "Specifies if this is a HCP Terraform speculative, plan-only run that cannot be applied.")
 	f.BoolVar(&c.IsDestroy, "is-destroy", false, "Specifies that the plan is a destroy plan. When true, the plan destroys all provisioned resources.")
 	f.BoolVar(&c.SavePlan, "save-plan", false, "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.")
+	f.BoolVar(&c.Refresh, "refresh", true, "When this value is false, skip checking for external changes to remote objects while creating the plan. This can potentially make planning faster, but at the expense of possibly planning against a stale record of the remote system state.")
 	f.Var((*flagStringSlice)(&c.TargetAddrs), "target", "Limit the planning operation to only the given module, resource, or resource instance and all of its dependencies. You can use this option multiple times to include more than one object. This is for exceptional use only. e.g. -target=aws_s3_bucket.foo")
 	return f
 }
@@ -78,6 +80,7 @@ func (c *CreateRunCommand) Run(args []string) int {
 		Message:                c.Message,
 		PlanOnly:               c.PlanOnly,
 		IsDestroy:              c.IsDestroy,
+		Refresh:                c.Refresh,
 		SavePlan:               c.SavePlan,
 		RunVariables:           runVars,
 		TargetAddrs:            c.TargetAddrs,
@@ -182,6 +185,7 @@ Options:
 
 	-plan-only              Specifies if this is a HCP Terraform speculative, plan-only run that cannot be applied.
 
+	-refresh=false          Skip checking for external changes to remote objects while creating the plan. This can potentially make planning faster, but at the expense of possibly planning against a stale record of the remote system state.
 	-save-plan              Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply.
 	-is-destroy				Specifies whether to create a destroy run.
 	-target					Focuses Terraform's attention on only a subset of resources and their dependencies. This option accepts multiple instances by providing additional target option flags.
