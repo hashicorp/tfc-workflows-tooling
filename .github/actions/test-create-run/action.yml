@@ -40,6 +40,10 @@ inputs:
     required: false
     description: "Specifies whether to create a saved plan. Saved-plan runs perform their plan and checks immediately, but won't lock the workspace and become its current run until they are confirmed for apply."
     default: "false"
+  refresh:
+    required: false
+    description: "When this value is false, skip checking for external changes to remote objects while creating the plan. This can potentially make planning faster, but at the expense of possibly planning against a stale record of the remote system state."
+    default: "true"
 
 outputs:
   status:
@@ -82,3 +86,4 @@ runs:
   - -message=${{ inputs.message }}
   - -plan-only=${{ inputs.plan_only }}
   - -save-plan=${{ inputs.save_plan }}
+  - -refresh=${{ inputs.refresh }}
