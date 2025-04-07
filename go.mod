@@ -27,7 +27,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/go-slug v0.16.4 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/hashicorp/jsonapi v1.4.3-0.20250220162346-81a76b606f3e
+	github.com/hashicorp/jsonapi v1.5.0
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
