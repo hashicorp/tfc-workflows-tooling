@@ -1,5 +1,10 @@
 # UNRELEASED
 
+# v1.3.4
+
+## Enhancements
+* Adds support for `-refresh` option to the `run create` command by @mpucholblasco [#154](https://github.com/hashicorp/tfc-workflows-tooling/pull/154)
+
 # v1.3.3
 * Bumps tfci go version to `v1.23` by @mjyocca [#141](https://github.com/hashicorp/tfc-workflows-tooling/pull/141)
 * Go Dependency cleanup (`tidy`) by @mjyocca [#143](https://github.com/hashicorp/tfc-workflows-tooling/pull/143)
