@@ -1,6 +1,6 @@
 # UNRELEASED
 
-# v1.3.4
+# v1.4.0
 
 ## Enhancements
 * Adds support for `-refresh` option to the `run create` command by @mpucholblasco [#154](https://github.com/hashicorp/tfc-workflows-tooling/pull/154)
