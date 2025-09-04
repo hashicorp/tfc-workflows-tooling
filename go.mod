@@ -2,8 +2,6 @@ module github.com/hashicorp/tfci
 
 go 1.24
 
-toolchain go1.24.1
-
 require (
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-tfe v1.91.1
