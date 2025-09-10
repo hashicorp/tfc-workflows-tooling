@@ -26,3 +26,13 @@ _Include any links here that might be helpful for people reviewing your PR. If t
 - [API documentation](https://developer.hashicorp.com/terraform/cloud-docs/api-docs/xxxx)
 
 -->
+
+## PCI Review Checklist
+<!-- heimdall_github_prtemplate:grc-pci_dss-2024-01-05 -->
+
+- [ ] If applicable, I’ve documented a plan to revert these changes if they require more than reverting the pull request.
+- [ ] If applicable, I’ve worked with GRC to document the impact of any changes to security controls.  
+  _Examples: access controls, encryption, logging, etc._
+
+If you have any questions, please contact your direct supervisor, GRC (#team-grc), or the PCI working group (#proj-pci-reboot).  
+More info here: [PCI Compliance](https://hashicorp.atlassian.net/wiki/spaces/SEC/pages/2784559202/PCI+Compliance)
