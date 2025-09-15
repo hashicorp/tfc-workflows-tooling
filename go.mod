@@ -1,16 +1,16 @@
 module github.com/hashicorp/tfci
 
-go 1.24
+go 1.24.0
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-tfe v1.91.1
+	github.com/hashicorp/go-tfe v1.92.0
 	github.com/mitchellh/cli v1.1.5
 	github.com/sethvargo/go-retry v0.3.0
 	go.uber.org/mock v0.6.0
 )
 
-require golang.org/x/sync v0.16.0 // indirect
+require golang.org/x/sync v0.17.0 // indirect
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
