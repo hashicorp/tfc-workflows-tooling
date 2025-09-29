@@ -50,14 +50,21 @@ func (c *WorkspaceOutputCommand) Run(args []string) int {
 	}
 
 	workspaceOutputs := []*WorkspaceOutput{}
+	workspaceOutputsMapping := make(map[string]interface{})
 	for _, svo := range svoList.Items {
 		workspaceOutputs = append(workspaceOutputs, &WorkspaceOutput{
 			Name:  svo.Name,
 			Value: svo.Value,
 		})
+		workspaceOutputsMapping[svo.Name] = svo.Value
 	}
 
 	c.addOutputWithOpts("outputs", workspaceOutputs, &outputOpts{
+		stdOut:      true,
+		multiLine:   true,
+		platformOut: true,
+	})
+	c.addOutputWithOpts("mapping", workspaceOutputsMapping, &outputOpts{
 		stdOut:      true,
 		multiLine:   true,
 		platformOut: true,
