@@ -1,5 +1,13 @@
 # UNRELEASED
 
+## Features
+* Adds policy evaluation and override commands (`policy show`, `policy override`) for Sentinel policy workflows by @CloudbrokerAz [#XXX](https://github.com/hashicorp/tfc-workflows-tooling/pull/XXX)
+  - New `policy show` command retrieves and displays Sentinel policy evaluation results with automatic wait/retry
+  - New `policy override` command applies policy overrides with justification for mandatory policy failures
+  - Supports both modern (task-stages) and legacy (policy-checks) TFC API formats
+  - Includes JSON output mode for CI/CD integration
+  - Exit codes designed for workflow automation
+
 # v1.4.0
 
 ## Enhancements
