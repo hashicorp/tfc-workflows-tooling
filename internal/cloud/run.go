@@ -138,7 +138,7 @@ func (service *runService) CreateRun(ctx context.Context, options CreateRunOptio
 		return nil, err
 	}
 
-	if w.Locked && !options.PlanOnly {
+	if w.Locked && !options.PlanOnly && w.CurrentRun != nil {
 		return nil, errors.New("run has been specified as non-speculative and the workspace is currently locked")
 	}
 
