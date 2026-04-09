@@ -1,10 +1,10 @@
 module github.com/hashicorp/tfci
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-tfe v1.98.0
+	github.com/hashicorp/go-tfe v1.103.0
 	github.com/hashicorp/jsonapi v1.5.0
 	github.com/mitchellh/cli v1.1.5
 	github.com/sethvargo/go-retry v0.3.0
@@ -18,7 +18,7 @@ require (
 	github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -36,7 +36,7 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 )
