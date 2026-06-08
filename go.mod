@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-tfe v1.106.0
+	github.com/hashicorp/go-tfe v1.108.0
 	github.com/hashicorp/jsonapi v1.5.0
 	github.com/mitchellh/cli v1.1.5
 	github.com/sethvargo/go-retry v0.3.0
