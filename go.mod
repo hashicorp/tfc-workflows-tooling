@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/go-tfe v1.109.0
 	github.com/hashicorp/jsonapi v1.5.0
 	github.com/mitchellh/cli v1.1.5
-	github.com/sethvargo/go-retry v0.3.0
+	github.com/sethvargo/go-retry v0.4.0
 	go.uber.org/mock v0.6.0
 )
 
