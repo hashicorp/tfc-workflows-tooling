@@ -103,14 +103,22 @@ func TestWorkspaceOutputListCommand_Output(t *testing.T) {
 			stdout := ui.OutputWriter.String()
 
 			var outputVal struct {
-				Outputs []WorkspaceOutput `json:"outputs"`
-				Status  string            `json:"status"`
+				Outputs []WorkspaceOutput      `json:"outputs"`
+				Mapping map[string]interface{} `json:"mapping"`
+				Status  string                 `json:"status"`
 			}
 			json.Unmarshal([]byte(stdout), &outputVal)
 
 			for i, o := range outputVal.Outputs {
 				actualVal, _ := json.Marshal(o.Value)
 				expectVal, _ := json.Marshal(tc.svoList[i].Value)
+				if !strings.Contains(string(actualVal), string(expectVal)) {
+					t.Fatalf("expected %q but received %q", string(expectVal), string(actualVal))
+				}
+			}
+			for _, o := range tc.svoList {
+				actualVal, _ := json.Marshal(outputVal.Mapping[o.Name])
+				expectVal, _ := json.Marshal(o.Value)
 				if !strings.Contains(string(actualVal), string(expectVal)) {
 					t.Fatalf("expected %q but received %q", string(expectVal), string(actualVal))
 				}
