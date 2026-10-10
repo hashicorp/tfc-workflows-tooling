@@ -2,14 +2,112 @@
 
 ## Available Commands
 
-* `upload`: Creates and uploads configuration files for a given workspace
+### Run Operations
 * `run show`: Returns run details for the provided HCP Terraform Run ID.
 * `run create`: Performs a new plan run in HCP Terraform, using a configuration version and the workspace's current variables.
 * `run apply`: Applies a run that is paused waiting for confirmation after a plan.
 * `run discard`: Skips any remaining work on runs that are paused waiting for confirmation or priority.
 * `run cancel`: Interrupts a run that is currently planning or applying.
+
+### Policy Operations
+* `policy show`: Retrieves and displays Sentinel policy evaluation results for a run with automatic wait/retry.
+* `policy override`: Applies a policy override with justification to unblock deployments when mandatory policies fail.
+
+### Configuration & Output
+* `upload`: Creates and uploads configuration files for a given workspace
 * `plan output`: Returns the plan details for the provided Plan ID.
 * `workspace output list`: Returns a list of workspace outputs.
+
+## Policy Operations
+
+The policy commands enable automated workflows for Sentinel policy evaluation and overrides.
+
+### Check Policy Evaluation Results
+
+```bash
+# Check policy results (automatically waits for evaluation to complete)
+tfci policy show --run run-abc123
+
+# Fast-fail mode (don't wait if policies are still evaluating)
+tfci policy show --run run-abc123 --no-wait
+
+# JSON output for CI/CD integration
+tfci policy show --run run-abc123 --json
+```
+
+**Exit Codes:**
+- `0`: Success, policies retrieved
+- `1`: Error (invalid run ID, API error, network failure)
+
+**Example Output:**
+```
+📊 Policy Evaluation Summary
+   Total Policies: 8
+   ✅ Passed: 6
+   ⚠️  Failed (Advisory): 0
+   🚫 Failed (Mandatory): 2
+   ❌ Errored: 0
+
+🚫 Failed Mandatory Policies:
+   - aws-cost-limit (mandatory)
+     Terraform run exceeds $500 daily cost threshold
+
+ℹ️  Override Required: Policy override needed to proceed
+```
+
+### Override Mandatory Policy Failures
+
+```bash
+# Apply policy override with justification
+tfci policy override \
+  --run run-abc123 \
+  --justification "Emergency hotfix approved by CTO - Incident INC-12345"
+
+# With JSON output
+tfci policy override \
+  --run run-abc123 \
+  --justification "Emergency hotfix - approved in CHG-67890" \
+  --json
+```
+
+**Requirements:**
+- Run must be in `post_plan_awaiting_decision` status
+- Justification is required (any non-empty string)
+- User must have override permissions on the workspace
+
+**Exit Codes:**
+- `0`: Override applied successfully
+- `1`: Error (wrong status, no mandatory failures, permissions error)
+- `2`: Run discarded during override
+- `3`: Override timeout
+
+### CI/CD Integration Example (GitHub Actions)
+
+```yaml
+- name: Check Policies
+  id: policy-check
+  run: |
+    docker run --rm \
+      -e TF_API_TOKEN="${{ secrets.TF_API_TOKEN }}" \
+      -e TF_CLOUD_ORGANIZATION="${{ vars.TF_CLOUD_ORGANIZATION }}" \
+      hashicorp/tfci:latest \
+      tfci policy show --run ${{ steps.plan.outputs.run_id }} --json \
+      > policy-results.json
+
+    MANDATORY_FAILED=$(jq -r '.mandatory_failed_count' policy-results.json)
+    echo "mandatory_failed=$MANDATORY_FAILED" >> $GITHUB_OUTPUT
+
+- name: Override if Needed
+  if: steps.policy-check.outputs.mandatory_failed != '0'
+  run: |
+    docker run --rm \
+      -e TF_API_TOKEN="${{ secrets.TF_API_TOKEN }}" \
+      -e TF_CLOUD_ORGANIZATION="${{ vars.TF_CLOUD_ORGANIZATION }}" \
+      hashicorp/tfci:latest \
+      tfci policy override \
+        --run ${{ steps.plan.outputs.run_id }} \
+        --justification "${{ github.event.inputs.justification }}"
+```
 
 ## Pulling Image from Dockerhub
 

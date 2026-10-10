@@ -4,6 +4,8 @@
 package cloud
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-tfe"
 )
 
@@ -29,10 +31,18 @@ type Cloud struct {
 	RunService
 	PlanService
 	WorkspaceService
+	PolicyService
 }
 
 func (c *Cloud) UseJson(json bool) {
 	c.writer.UseJson(json)
+}
+
+// RunLinkByID constructs a run link URL using only the run ID.
+// This is useful when we don't have the full Run object (e.g., from policy operations).
+func (c *Cloud) RunLinkByID(organization, runID string) string {
+	url := c.tfe.BaseURL()
+	return fmt.Sprintf("%s://%s/app/%s/runs/%s", url.Scheme, url.Host, organization, runID)
 }
 
 // shared struct to embed
@@ -53,5 +63,6 @@ func NewCloud(c *tfe.Client, w Writer) *Cloud {
 		RunService:           NewRunService(meta),
 		PlanService:          NewPlanService(meta),
 		WorkspaceService:     NewWorkspaceService(meta),
+		PolicyService:        NewPolicyService(meta),
 	}
 }
