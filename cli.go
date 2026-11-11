@@ -85,6 +85,12 @@ func newCliRunner() (*cli.CLI, error) {
 		"workspace output list": func() (cli.Command, error) {
 			return &cmd.WorkspaceOutputCommand{Meta: meta}, nil
 		},
+		"policy show": func() (cli.Command, error) {
+			return &cmd.PolicyShowCommand{Meta: meta}, nil
+		},
+		"policy override": func() (cli.Command, error) {
+			return &cmd.PolicyOverrideCommand{Meta: meta}, nil
+		},
 	}
 
 	return cliRunner, nil
