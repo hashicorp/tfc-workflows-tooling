@@ -28,9 +28,13 @@ docker pull hashicorp/tfci:v1.0.4
 
 *Requires cloning the repository and having Docker installed on your host machine*
 
-```
+```sh
 docker build . -t tfci:tagname
 ```
+
+When upgrading Go, keep `.go-version`, the `go` directive in `go.mod`, and the
+`golang` builder image tag in `Dockerfile` aligned. CI reads `.go-version` and
+checks that all three versions match, including for Dependabot Docker updates.
 
 ## Running the TFCI Container (Environment Variables, WORKDIR, Bind mount)
 
