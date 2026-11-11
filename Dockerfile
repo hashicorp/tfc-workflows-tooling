@@ -1,7 +1,7 @@
 # Copyright IBM Corp. 2023, 2025
 # SPDX-License-Identifier: MPL-2.0
 
-FROM golang:1.25.13 AS builder
+FROM golang:1.27.0 AS builder
 ARG VERSION
 
 ENV GO111MODULE=on \
