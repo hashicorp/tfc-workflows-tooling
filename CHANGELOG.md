@@ -1,5 +1,8 @@
 # UNRELEASED
 
+## Enhancements
+* Adds `mapping` output to `workspace output list` command for key-value lookup by @sam-mosleh [#182](https://github.com/hashicorp/tfc-workflows-tooling/pull/182)
+
 # v1.4.0
 
 ## Enhancements
